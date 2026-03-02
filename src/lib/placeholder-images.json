@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-restaurant",
+      "description": "Sophisticated modern restaurant interior",
+      "imageUrl": "https://images.unsplash.com/photo-1722739541715-1d59cde9cca4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjByZXN0YXVyYW50fGVufDB8fHx8MTc3MjQ5MTMwOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "modern restaurant"
+    },
+    {
+      "id": "chef-working",
+      "description": "Professional chef in a kitchen",
+      "imageUrl": "https://images.unsplash.com/photo-1623594629187-2a68392cbab9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjaGVmJTIwa2l0Y2hlbnxlbnwwfHx8fDE3NzI0Nzk1NjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chef kitchen"
+    },
+    {
+      "id": "dish-burger",
+      "description": "Gourmet beef burger",
+      "imageUrl": "https://images.unsplash.com/photo-1692197275931-0793e08efcc1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxnb3VybWV0JTIwYnVyZ2VyfGVufDB8fHx8MTc3MjQ1OTg4OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gourmet burger"
+    }
+  ]
 }
