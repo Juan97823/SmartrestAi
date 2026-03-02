@@ -28,30 +28,30 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Executive Dashboard</h1>
-        <p className="text-muted-foreground">Real-time overview of SmartRest AI operations.</p>
+        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Panel Ejecutivo</h1>
+        <p className="text-muted-foreground">Resumen en tiempo real de las operaciones globales.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Daily Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Ingresos Diarios</CardTitle>
             <DollarSign className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$2,840.50</div>
+            <div className="text-2xl font-bold">€2,840.50</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <span className="text-emerald-500 font-medium flex items-center mr-1">
                 <ArrowUpRight className="h-3 w-3 mr-0.5" /> +12.5%
               </span> 
-              from yesterday
+              respecto a ayer
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Covers</CardTitle>
+            <CardTitle className="text-sm font-medium">Comensales Totales</CardTitle>
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -60,14 +60,14 @@ export default function Dashboard() {
               <span className="text-emerald-500 font-medium flex items-center mr-1">
                 <ArrowUpRight className="h-3 w-3 mr-0.5" /> +8%
               </span> 
-              capacity utilized
+              capacidad utilizada
             </p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Table Occupancy</CardTitle>
+            <CardTitle className="text-sm font-medium">Ocupación Mesas</CardTitle>
             <Utensils className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -80,12 +80,12 @@ export default function Dashboard() {
 
         <Card className="hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Inventory Risk</CardTitle>
+            <CardTitle className="text-sm font-medium">Riesgo Inventario</CardTitle>
             <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3 items</div>
-            <p className="text-xs text-destructive mt-1 font-medium">Critical stock levels detected</p>
+            <div className="text-2xl font-bold">3 ítems</div>
+            <p className="text-xs text-destructive mt-1 font-medium">Niveles críticos detectados</p>
           </CardContent>
         </Card>
       </div>
@@ -94,7 +94,7 @@ export default function Dashboard() {
         <Card className="lg:col-span-4">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Sales Trend (Weekly)</CardTitle>
+              <CardTitle>Tendencia de Ventas (Semanal)</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -121,27 +121,27 @@ export default function Dashboard() {
 
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Live Order Feed</CardTitle>
+            <CardTitle>Pedidos en Vivo</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {[
-                { id: '1024', table: '4', items: 3, status: 'Preparing', time: '5m' },
-                { id: '1023', table: '1', items: 5, status: 'Ready', time: '12m' },
-                { id: '1022', table: '8', items: 2, status: 'Served', time: '18m' },
-                { id: '1021', table: '2', items: 4, status: 'Preparing', time: '22m' },
+                { id: '1024', table: '4', items: 3, status: 'Preparando', time: '5m' },
+                { id: '1023', table: '1', items: 5, status: 'Listo', time: '12m' },
+                { id: '1022', table: '8', items: 2, status: 'Servido', time: '18m' },
+                { id: '1021', table: '2', items: 4, status: 'Preparando', time: '22m' },
               ].map((order) => (
                 <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border">
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold">Order #{order.id}</span>
-                    <span className="text-xs text-muted-foreground">Table {order.table} • {order.items} items</span>
+                    <span className="text-sm font-bold">Pedido #{order.id}</span>
+                    <span className="text-xs text-muted-foreground">Mesa {order.table} • {order.items} ítems</span>
                   </div>
                   <div className="flex flex-col items-end">
-                    <Badge variant={order.status === 'Ready' ? 'default' : 'secondary'} className={order.status === 'Ready' ? 'bg-emerald-500' : ''}>
+                    <Badge variant={order.status === 'Listo' ? 'default' : 'secondary'} className={order.status === 'Listo' ? 'bg-emerald-500' : ''}>
                       {order.status}
                     </Badge>
                     <span className="text-[10px] text-muted-foreground mt-1 flex items-center">
-                      <Clock className="h-2.5 w-2.5 mr-0.5" /> {order.time} ago
+                      <Clock className="h-2.5 w-2.5 mr-0.5" /> hace {order.time}
                     </span>
                   </div>
                 </div>
