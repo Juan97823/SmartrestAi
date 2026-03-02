@@ -1,7 +1,9 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Habilita la salida standalone para Docker */
+  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },

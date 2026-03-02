@@ -1,39 +1,45 @@
-name: CI/CD Deployment
+
+name: Despliegue SmartRest AI
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node.js
+      
+      - name: Configurar Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-      - name: Lint
-        run: npm run lint
+          cache: 'npm'
 
-  # Ejemplo de deploy en AWS/Azure via Docker Hub
-  # Se requiere configurar secrets: DOCKER_USERNAME, DOCKER_PASSWORD
-  deploy-docker:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to DockerHub
+      - name: Instalar Dependencias
+        run: npm ci
+
+      - name: Construir Proyecto
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+
+      # Ejemplo de construcción de imagen Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login a DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
         uses: docker/build-push-action@v4
         with:
+          context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/smartrest-ai:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/smartrest-ai:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/smartrest-ai:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/smartrest-ai:buildcache,mode=max
