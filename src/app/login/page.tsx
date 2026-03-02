@@ -21,11 +21,11 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     
-    // Simulación de login para prototipo (En producción usar Firebase Auth)
+    // Simulación de login para prototipo
     setTimeout(() => {
       if (email === 'admin@smartrest.ai' && password === 'admin123') {
         localStorage.setItem('isAuthenticated', 'true')
-        router.push('/')
+        window.location.href = '/' // Forzar recarga para actualizar layout
         toast({ title: "Bienvenido", description: "Acceso concedido a SmartRest AI." })
       } else {
         toast({ 
@@ -96,7 +96,7 @@ export default function LoginPage() {
                 ¿Olvidó su contraseña? Contacte con soporte técnico.
               </p>
             </CardFooter>
-          </form> Card
+          </form>
         </Card>
       </div>
     </div>

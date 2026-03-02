@@ -1,21 +1,24 @@
 
-# Stage 1: Install dependencies
+# Stage 1: Dependencias
 FROM node:18-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
-# Stage 2: Build the application
+# Stage 2: Construcción
 FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Disable telemetry during the build.
+
+# Variables de entorno para build (Firebase)
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV production
+
 RUN npm run build
 
-# Stage 3: Production server
+# Stage 3: Runner
 FROM node:18-alpine AS runner
 WORKDIR /app
 
@@ -26,20 +29,13 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
-
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --of=1001:1001 /app/.next/standalone ./
-COPY --from=builder --of=1001:1001 /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
-
 ENV PORT 3000
 
+# Server.js es generado por Next.js standalone
 CMD ["node", "server.js"]

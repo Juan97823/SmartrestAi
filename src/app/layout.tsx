@@ -1,21 +1,21 @@
 
-import type {Metadata} from 'next';
+"use client"
+
 import './globals.css';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import AuthWrapper from '@/components/auth-wrapper';
-
-export const metadata: Metadata = {
-  title: 'SmartRest AI - Gestión Inteligente',
-  description: 'Sistema de gestión de restaurantes impulsado por IA',
-};
+import { usePathname } from 'next/navigation';
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === '/login';
+
   return (
     <html lang="es">
       <head>
@@ -25,14 +25,20 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AuthWrapper>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <main className="p-4 md:p-8 min-h-screen bg-background">
-                {children}
-              </main>
-            </SidebarInset>
-          </SidebarProvider>
+          {isLoginPage ? (
+            <main className="min-h-screen bg-background">
+              {children}
+            </main>
+          ) : (
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <main className="p-4 md:p-8 min-h-screen bg-background">
+                  {children}
+                </main>
+              </SidebarInset>
+            </SidebarProvider>
+          )}
         </AuthWrapper>
         <Toaster />
       </body>
