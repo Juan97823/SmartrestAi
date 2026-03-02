@@ -11,17 +11,18 @@ import {
   Search, 
   ShoppingCart, 
   Sparkles,
-  ChevronRight,
-  ArrowRight
+  Loader2
 } from 'lucide-react'
 import { aiDishRecommendation } from '@/ai/flows/ai-dish-recommendation'
+import { createOrder } from '@/services/firestore-service'
 import { POPULAR_DISHES } from '@/lib/mock-data'
-import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 
 export default function OrdersPage() {
   const [currentOrder, setCurrentOrder] = useState<string[]>([])
   const [loadingAi, setLoadingAi] = useState(false)
+  const [sending, setSending] = useState(false)
   const [recommendations, setRecommendations] = useState<{items: string[], reason: string} | null>(null)
   const { toast } = useToast()
 
@@ -31,7 +32,7 @@ export default function OrdersPage() {
 
   const getAiUpsell = async () => {
     if (currentOrder.length === 0) {
-      toast({ title: "Order empty", description: "Add some items before getting recommendations." })
+      toast({ title: "Pedido vacío", description: "Añade platos antes de pedir recomendaciones." })
       return
     }
     setLoadingAi(true)
@@ -39,7 +40,7 @@ export default function OrdersPage() {
       const res = await aiDishRecommendation({
         orderedDishNames: currentOrder,
         popularItemsRecently: POPULAR_DISHES,
-        occasionOrTime: "Dinner Service"
+        occasionOrTime: "Servicio de Cena"
       })
       setRecommendations({
         items: res.recommendedDishes,
@@ -52,23 +53,43 @@ export default function OrdersPage() {
     }
   }
 
+  const handleSubmitOrder = async () => {
+    if (currentOrder.length === 0) return
+    setSending(true)
+    try {
+      await createOrder({
+        tableId: '4', // Simulado
+        items: currentOrder,
+        status: 'preparando',
+        priority: 'Media',
+        branchId: 'suc-01'
+      })
+      toast({ title: "¡Pedido Enviado!", description: "La cocina ha recibido el pedido en tiempo real." })
+      setCurrentOrder([])
+      setRecommendations(null)
+    } catch (err) {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo enviar el pedido." })
+    } finally {
+      setSending(false)
+    }
+  }
+
   return (
     <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
       <div>
-        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Order Management</h1>
-        <p className="text-muted-foreground">Process orders and enhance guest experience with AI recommendations.</p>
+        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Gestión de Pedidos</h1>
+        <p className="text-muted-foreground">Procesa pedidos y mejora la experiencia con recomendaciones de IA.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Menu & Search */}
         <div className="lg:col-span-7 space-y-6">
-          <Card>
+          <Card className="border-none shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle>Menu Browser</CardTitle>
+                <CardTitle className="text-lg">Explorador de Menú</CardTitle>
                 <div className="relative w-48">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Find dish..." className="pl-8 h-9" />
+                  <Input placeholder="Buscar plato..." className="pl-8 h-9" />
                 </div>
               </div>
             </CardHeader>
@@ -78,7 +99,7 @@ export default function OrdersPage() {
                   <Button 
                     key={dish} 
                     variant="outline" 
-                    className="justify-between h-auto py-4 px-4 hover:bg-primary hover:text-white transition-colors group"
+                    className="justify-between h-auto py-4 px-4 hover:bg-primary hover:text-white transition-all group border-secondary"
                     onClick={() => addToOrder(dish)}
                   >
                     <span className="font-medium">{dish}</span>
@@ -90,15 +111,13 @@ export default function OrdersPage() {
           </Card>
 
           {recommendations && (
-            <Card className="bg-accent/10 border-accent/30 overflow-hidden">
+            <Card className="bg-accent/10 border-accent/30 overflow-hidden animate-in zoom-in duration-300">
               <div className="p-1 bg-accent flex items-center justify-center gap-2">
                  <Sparkles className="h-3 w-3 text-white" />
-                 <span className="text-[10px] font-bold text-white uppercase tracking-widest">AI Upsell Assistant</span>
+                 <span className="text-[10px] font-bold text-white uppercase tracking-widest">Asistente de Upsell IA</span>
               </div>
               <CardContent className="pt-6">
-                <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                  Recommended Add-ons
-                </h3>
+                <h3 className="font-bold text-lg mb-2">Sugerencias para el cliente</h3>
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     {recommendations.items.map(rec => (
@@ -125,12 +144,11 @@ export default function OrdersPage() {
           )}
         </div>
 
-        {/* Current Order Cart */}
-        <Card className="lg:col-span-5 h-fit shadow-lg">
-          <CardHeader className="bg-primary text-primary-foreground rounded-t-lg">
+        <Card className="lg:col-span-5 h-fit shadow-xl border-none overflow-hidden">
+          <CardHeader className="bg-primary text-primary-foreground">
             <CardTitle className="flex items-center gap-2">
               <ShoppingCart className="h-5 w-5" />
-              Active Basket
+              Cesta Activa
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
@@ -138,19 +156,19 @@ export default function OrdersPage() {
               {currentOrder.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground opacity-50">
                   <ClipboardList className="h-12 w-12 mb-2" />
-                  <p>No items selected</p>
+                  <p>No hay platos seleccionados</p>
                 </div>
               ) : (
                 currentOrder.map((item, i) => (
-                  <div key={i} className="flex justify-between items-center py-2 border-b last:border-0 group">
+                  <div key={i} className="flex justify-between items-center py-2 border-b last:border-0 group animate-in slide-in-from-left-2">
                     <span className="font-medium">{item}</span>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-destructive h-7 px-2 opacity-0 group-hover:opacity-100"
+                      className="text-destructive h-7 px-2"
                       onClick={() => setCurrentOrder(prev => prev.filter((_, idx) => idx !== i))}
                     >
-                      Remove
+                      Quitar
                     </Button>
                   </div>
                 ))
@@ -159,8 +177,8 @@ export default function OrdersPage() {
             
             <div className="mt-8 space-y-4">
               <div className="flex justify-between text-lg font-bold">
-                <span>Estimated Total</span>
-                <span>${(currentOrder.length * 15).toFixed(2)}</span>
+                <span>Total Estimado</span>
+                <span>€{(currentOrder.length * 15.5).toFixed(2)}</span>
               </div>
               
               <div className="grid grid-cols-2 gap-3">
@@ -170,11 +188,16 @@ export default function OrdersPage() {
                   onClick={getAiUpsell}
                   disabled={loadingAi || currentOrder.length === 0}
                 >
-                  <Sparkles className={cn("h-4 w-4 text-accent", loadingAi && "animate-spin")} />
-                  AI Upsell
+                  {loadingAi ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 text-accent" />}
+                  Sugerir IA
                 </Button>
-                <Button className="bg-primary hover:bg-primary/90">
-                  Send to Kitchen
+                <Button 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={handleSubmitOrder}
+                  disabled={sending || currentOrder.length === 0}
+                >
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Enviar a Cocina
                 </Button>
               </div>
             </div>
@@ -183,8 +206,4 @@ export default function OrdersPage() {
       </div>
     </div>
   )
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ')
 }
