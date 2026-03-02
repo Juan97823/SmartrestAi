@@ -24,12 +24,20 @@ import {
 import { RECENT_SALES_DATA } from '@/lib/mock-data'
 import { Badge } from '@/components/ui/badge'
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
+  }).format(value);
+};
+
 export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Panel Ejecutivo</h1>
-        <p className="text-muted-foreground">Resumen en tiempo real de las operaciones globales.</p>
+        <p className="text-muted-foreground">Resumen en tiempo real de las operaciones globales (Valores en COP).</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -39,7 +47,7 @@ export default function Dashboard() {
             <DollarSign className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€2,840.50</div>
+            <div className="text-2xl font-bold">{formatCurrency(10800000)}</div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center">
               <span className="text-emerald-500 font-medium flex items-center mr-1">
                 <ArrowUpRight className="h-3 w-3 mr-0.5" /> +12.5%
@@ -94,7 +102,7 @@ export default function Dashboard() {
         <Card className="lg:col-span-4">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Tendencia de Ventas (Semanal)</CardTitle>
+              <CardTitle>Tendencia de Ventas Semanal (COP)</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -106,6 +114,7 @@ export default function Dashboard() {
                   <YAxis hide />
                   <Tooltip 
                     cursor={{ fill: 'transparent' }} 
+                    formatter={(value: number) => [formatCurrency(value), 'Ventas']}
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
                   <Bar dataKey="sales" radius={[4, 4, 0, 0]}>

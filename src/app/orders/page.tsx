@@ -74,6 +74,14 @@ export default function OrdersPage() {
     }
   }
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0
+    }).format(value);
+  };
+
   return (
     <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
       <div>
@@ -178,7 +186,7 @@ export default function OrdersPage() {
             <div className="mt-8 space-y-4">
               <div className="flex justify-between text-lg font-bold">
                 <span>Total Estimado</span>
-                <span>€{(currentOrder.length * 15.5).toFixed(2)}</span>
+                <span>{formatCurrency(currentOrder.length * 35000)}</span>
               </div>
               
               <div className="grid grid-cols-2 gap-3">

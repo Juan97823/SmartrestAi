@@ -14,9 +14,9 @@ export interface Sucursal {
 }
 
 export const SUCURSALES: Sucursal[] = [
-  { id: 'suc-01', nombre: 'Centro Histórico', ubicacion: 'Calle Mayor 10' },
-  { id: 'suc-02', nombre: 'Zona Norte', ubicacion: 'Av. Libertad 500' },
-  { id: 'suc-03', nombre: 'Playa Marina', ubicacion: 'Paseo Marítimo 5' },
+  { id: 'suc-01', nombre: 'Centro Histórico - Bogotá', ubicacion: 'Calle 11 # 4-14' },
+  { id: 'suc-02', nombre: 'Zona Rosa - Medellín', ubicacion: 'Carrera 35 # 8A-38' },
+  { id: 'suc-03', nombre: 'Ciudad Jardín - Cali', ubicacion: 'Avenida Cañasgordas' },
 ];
 
 export const INITIAL_TABLES: Table[] = [
@@ -44,19 +44,19 @@ export const INVENTORY_ITEMS = [
 ];
 
 export const POPULAR_DISHES = [
-  "SmartBurger",
-  "Pizza Veggie",
+  "SmartBurger Especial",
+  "Pizza Veggie Criolla",
   "Salmón a la Parrilla",
   "Patatas Trufadas",
-  "Ensalada César"
+  "Ensalada César con Pollo"
 ];
 
 export const RECENT_SALES_DATA = [
-  { day: 'Lun', sales: 1200 },
-  { day: 'Mar', sales: 1100 },
-  { day: 'Mie', sales: 1400 },
-  { day: 'Jue', sales: 1800 },
-  { day: 'Vie', sales: 2500 },
-  { day: 'Sab', sales: 3200 },
-  { day: 'Dom', sales: 2800 },
+  { day: 'Lun', sales: 4500000 },
+  { day: 'Mar', sales: 4100000 },
+  { day: 'Mie', sales: 5400000 },
+  { day: 'Jue', sales: 6800000 },
+  { day: 'Vie', sales: 9500000 },
+  { day: 'Sab', sales: 12200000 },
+  { day: 'Dom', sales: 10800000 },
 ];

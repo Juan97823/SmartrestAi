@@ -14,7 +14,6 @@ import {
   Target
 } from 'lucide-react'
 import { analizarRentabilidad, AnalisisRentabilidadOutput } from '@/ai/flows/analisis-predictivo-rentabilidad'
-import { RECENT_SALES_DATA } from '@/lib/mock-data'
 import { 
   LineChart, 
   Line, 
@@ -25,6 +24,14 @@ import {
   CartesianGrid
 } from 'recharts'
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
+  }).format(value);
+};
+
 export default function RentabilidadPage() {
   const [loading, setLoading] = useState(false)
   const [analisis, setAnalisis] = useState<AnalisisRentabilidadOutput | null>(null)
@@ -34,9 +41,9 @@ export default function RentabilidadPage() {
     try {
       const res = await analizarRentabilidad({
         sucursalId: 'suc-01',
-        ingresosMensuales: 45000,
-        costosFijos: 12000,
-        costosVariables: 18000,
+        ingresosMensuales: 280000000,
+        costosFijos: 65000000,
+        costosVariables: 120000000,
         mesesProyectados: 6
       })
       setAnalisis(res)
@@ -52,7 +59,7 @@ export default function RentabilidadPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Análisis de Rentabilidad con IA</h1>
-          <p className="text-muted-foreground">Proyecciones financieras y optimización de márgenes.</p>
+          <p className="text-muted-foreground">Proyecciones financieras en Pesos Colombianos (COP).</p>
         </div>
         <Button 
           className="bg-accent hover:bg-accent/80 text-accent-foreground shadow-lg flex gap-2"
@@ -69,7 +76,7 @@ export default function RentabilidadPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-primary" />
-              Proyección de Beneficios
+              Proyección de Beneficios (COP)
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -79,8 +86,8 @@ export default function RentabilidadPage() {
                   <LineChart data={analisis.proyeccionBeneficio}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="mes" />
-                    <YAxis />
-                    <Tooltip />
+                    <YAxis tickFormatter={(value) => `$${value/1000000}M`} />
+                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
                     <Line type="monotone" dataKey="beneficioEstimado" stroke="hsl(var(--primary))" strokeWidth={3} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -96,7 +103,7 @@ export default function RentabilidadPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Estado Financiero</CardTitle>
+              <CardTitle className="text-lg">Estado Financiero (COP)</CardTitle>
             </CardHeader>
             <CardContent>
               {analisis ? (
