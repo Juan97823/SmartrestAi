@@ -1,10 +1,6 @@
 'use server';
 /**
- * @fileOverview This file implements a Genkit flow for predicting daily restaurant demand.
- *
- * - predictDailyDemand - A function that handles the daily demand prediction process.
- * - PredictDailyDemandInput - The input type for the predictDailyDemand function.
- * - PredictDailyDemandOutput - The return type for the predictDailyDemand function.
+ * @fileOverview Flujo de Genkit para predecir la demanda diaria del restaurante.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,32 +9,32 @@ import {z} from 'genkit';
 const PredictDailyDemandInputSchema = z.object({
   date: z
     .string()
-    .describe("The specific date for which to predict demand (e.g., '2024-07-20')."),
+    .describe("La fecha específica para predecir la demanda (ej., '2024-07-20')."),
   dayOfWeek: z
     .string()
-    .describe("The day of the week for the prediction (e.g., 'Monday', 'Saturday')."),
+    .describe("El día de la semana (ej., 'Lunes', 'Sábado')."),
   specialEvents: z
     .string()
     .optional()
-    .describe('Any known special events or holidays on this date (e.g., "local festival", "public holiday").'),
+    .describe('Eventos especiales o festivos conocidos (ej., "festival local", "festivo nacional").'),
 });
 export type PredictDailyDemandInput = z.infer<typeof PredictDailyDemandInputSchema>;
 
 const PredictDailyDemandOutputSchema = z.object({
   predictedDemandLevel: z
     .enum(['Low', 'Medium', 'High', 'Very High'])
-    .describe('A categorical prediction of the expected demand level.'),
+    .describe('Predicción categórica del nivel de demanda esperado.'),
   predictedCovers: z
     .number()
     .int()
-    .describe('An estimated number of customers or covers for the day.'),
+    .describe('Número estimado de clientes o cubiertos para el día.'),
   staffingRecommendation: z
     .string()
-    .describe('Recommendations for appropriate staffing levels based on predicted demand.'),
+    .describe('Recomendaciones de personal basadas en la demanda prevista.'),
   inventoryNotes: z
     .string()
-    .describe('Important notes or considerations for inventory management based on the prediction.'),
-  reasoning: z.string().describe('The reasoning and factors behind the demand prediction.'),
+    .describe('Notas importantes para la gestión de inventario.'),
+  reasoning: z.string().describe('Razonamiento y factores detrás de la predicción.'),
 });
 export type PredictDailyDemandOutput = z.infer<typeof PredictDailyDemandOutputSchema>;
 
@@ -52,28 +48,25 @@ const predictDailyDemandPrompt = ai.definePrompt({
   name: 'predictDailyDemandPrompt',
   input: {schema: PredictDailyDemandInputSchema},
   output: {schema: PredictDailyDemandOutputSchema},
-  prompt: `You are an AI-powered demand prediction model for a restaurant, trained on simulated historical sales data and general restaurant industry patterns.
-Your task is to predict the daily demand for the restaurant based on the provided date, day of the week, and any special events.
+  prompt: `Eres un modelo de predicción de demanda impulsado por IA para un restaurante.
+Tu tarea es predecir la demanda diaria basándote en la fecha, el día de la semana y eventos especiales.
 
-Simulate the output of a simplified machine learning model.
+Detalles de entrada:
+Fecha: {{{date}}}
+Día: {{{dayOfWeek}}}
+{{#if specialEvents}}Eventos Especiales: {{{specialEvents}}}{{/if}}
 
-Input Details:
-Date: {{{date}}}
-Day of Week: {{{dayOfWeek}}}
-{{#if specialEvents}}Special Events: {{{specialEvents}}}{{/if}}
+Considera patrones típicos:
+- Los fines de semana y festivos suelen tener mayor demanda.
+- Los días de semana (Lunes-Miércoles) suelen ser más flojos.
+- Los eventos especiales impactan significativamente.
 
-Consider typical restaurant demand patterns:
-- Weekends and holidays generally have higher demand.
-- Weekdays (Monday-Wednesday) often have lower demand, with Thursday and Friday seeing an increase.
-- Special events significantly impact demand.
-
-Provide the following output:
-- A 'predictedDemandLevel' (Low, Medium, High, Very High).
-- An estimated 'predictedCovers' (number of customers).
-- 'staffingRecommendation' appropriate for the predicted demand.
-- 'inventoryNotes' with considerations for stocking based on demand.
-- A 'reasoning' explaining your prediction, referencing the input factors.
-`,
+Proporciona la salida en ESPAÑOL:
+- 'predictedDemandLevel' (Low, Medium, High, Very High).
+- 'predictedCovers' (número estimado).
+- 'staffingRecommendation' (en español).
+- 'inventoryNotes' (en español).
+- 'reasoning' (en español).`,
 });
 
 const aiDemandPredictionFlow = ai.defineFlow(
