@@ -18,6 +18,7 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { SUCURSALES } from "@/lib/mock-data"
+import { cn } from "@/lib/utils"
 
 import {
   Sidebar,
