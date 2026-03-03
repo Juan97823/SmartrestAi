@@ -8,34 +8,36 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { UtensilsCrossed, Loader2, Lock, Mail } from 'lucide-react'
+import { useAuth } from '@/firebase'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import { useToast } from '@/hooks/use-toast'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const auth = useAuth()
   const { toast } = useToast()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     
-    // Simulación de login para prototipo
-    setTimeout(() => {
-      if (email === 'admin@smartrest.ai' && password === 'admin123') {
-        localStorage.setItem('isAuthenticated', 'true')
-        window.location.href = '/' // Forzar recarga para actualizar layout
-        toast({ title: "Bienvenido", description: "Acceso concedido a SmartRest AI." })
-      } else {
-        toast({ 
-          variant: "destructive", 
-          title: "Error de acceso", 
-          description: "Credenciales inválidas. Use admin@smartrest.ai / admin123" 
-        })
-      }
+    try {
+      await signInWithEmailAndPassword(auth, email, password)
+      toast({ title: "Bienvenido", description: "Acceso concedido a SmartRest AI." })
+      router.push('/')
+    } catch (err: any) {
+      toast({ 
+        variant: "destructive", 
+        title: "Error de acceso", 
+        description: "Credenciales inválidas. Verifique su correo y contraseña." 
+      })
+    } finally {
       setLoading(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -52,7 +54,7 @@ export default function LoginPage() {
         <Card className="border-none shadow-2xl">
           <CardHeader>
             <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-            <CardDescription>Ingrese sus credenciales para acceder al panel ejecutivo.</CardDescription>
+            <CardDescription>Ingrese sus credenciales para acceder al sistema.</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
@@ -92,8 +94,8 @@ export default function LoginPage() {
                 {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
                 Entrar al Sistema
               </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                ¿Olvidó su contraseña? Contacte con soporte técnico.
+              <p className="text-sm text-center text-muted-foreground">
+                ¿No tienes cuenta? <Link href="/register" className="text-primary font-bold hover:underline">Regístrate gratis</Link>
               </p>
             </CardFooter>
           </form>

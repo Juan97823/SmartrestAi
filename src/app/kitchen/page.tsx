@@ -1,31 +1,34 @@
+
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Clock, AlertCircle, ChefHat } from 'lucide-react'
-import { listenOrders, updateOrderStatus, Order } from '@/services/firestore-service'
+import { CheckCircle2, Clock, AlertCircle, ChefHat, Loader2 } from 'lucide-react'
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase'
+import { collection, query, where, orderBy, updateDoc, doc } from 'firebase/firestore'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
 
 export default function KitchenPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const db = useFirestore()
   const { toast } = useToast()
+  
+  // Consulta en tiempo real (WebSocket simulado vía Firestore onSnapshot)
+  const ordersQuery = useMemoFirebase(() => {
+    return query(
+      collection(db, 'orders'),
+      where('status', 'in', ['preparando', 'listo']),
+      orderBy('createdAt', 'desc')
+    )
+  }, [db])
 
-  useEffect(() => {
-    // Escuchando pedidos de la sucursal actual (simulado ID 'suc-01')
-    const unsubscribe = listenOrders('suc-01', (newOrders) => {
-      setOrders(newOrders.filter(o => o.status === 'preparando' || o.status === 'listo'))
-      setLoading(false)
-    })
-    return () => unsubscribe()
-  }, [])
+  const { data: orders, isLoading } = useCollection(ordersQuery)
 
   const handleComplete = async (id: string) => {
     try {
-      await updateOrderStatus(id, 'listo')
+      await updateDoc(doc(db, 'orders', id), { status: 'listo' })
       toast({ title: "Pedido actualizado", description: "El pedido está listo para servir." })
     } catch (err) {
       toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el pedido." })
@@ -40,17 +43,17 @@ export default function KitchenPage() {
         </div>
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Monitor de Cocina</h1>
-          <p className="text-muted-foreground">Pedidos entrantes en tiempo real sincronizados vía WebSockets.</p>
+          <p className="text-muted-foreground">Sincronización en tiempo real vía WebSockets nativos de Firestore.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? (
+        {isLoading ? (
           <div className="col-span-full flex flex-col items-center py-20 text-muted-foreground">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mb-4" />
-            <p>Conectando con la base de datos en tiempo real...</p>
+            <Loader2 className="animate-spin h-8 w-8 text-primary mb-4" />
+            <p>Conectando con la cocina en tiempo real...</p>
           </div>
-        ) : orders.length === 0 ? (
+        ) : !orders || orders.length === 0 ? (
           <Card className="col-span-full border-dashed border-2 flex items-center justify-center min-h-[300px] text-muted-foreground bg-secondary/10">
             <div className="text-center">
               <p className="text-lg font-medium">No hay pedidos pendientes</p>
@@ -80,7 +83,7 @@ export default function KitchenPage() {
                   <span>Estado: <span className="capitalize font-bold text-primary">{order.status}</span></span>
                 </div>
                 <ul className="space-y-3">
-                  {order.items.map((item, i) => (
+                  {order.items.map((item: string, i: number) => (
                     <li key={i} className="flex items-center gap-2 text-sm font-medium p-2 bg-secondary/20 rounded">
                       <div className="h-2 w-2 rounded-full bg-primary" />
                       {item}
