@@ -2,38 +2,38 @@
 "use client"
 
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { UtensilsCrossed, Loader2, Lock, Mail } from 'lucide-react'
+import { UtensilsCrossed, Loader2, Mail, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/firebase'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { sendPasswordResetEmail } from 'firebase/auth'
 import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
   const auth = useAuth()
   const { toast } = useToast()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     
     try {
-      await signInWithEmailAndPassword(auth, email, password)
-      toast({ title: "Bienvenido", description: "Acceso concedido a SmartRest AI." })
-      router.push('/')
+      await sendPasswordResetEmail(auth, email)
+      toast({ 
+        title: "Correo enviado", 
+        description: "Se ha enviado un enlace de recuperación a tu correo electrónico." 
+      })
+      setEmail('')
     } catch (err: any) {
       toast({ 
         variant: "destructive", 
-        title: "Error de acceso", 
-        description: "Credenciales inválidas. Verifique su correo y contraseña." 
+        title: "Error", 
+        description: "No se pudo enviar el correo. Verifique que la dirección sea correcta." 
       })
     } finally {
       setLoading(false)
@@ -48,15 +48,17 @@ export default function LoginPage() {
             <UtensilsCrossed className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-primary font-headline">SmartRest AI</h1>
-          <p className="text-muted-foreground">Gestión Inteligente de Restaurantes</p>
+          <p className="text-muted-foreground">Recuperación de Acceso</p>
         </div>
 
         <Card className="border-none shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-            <CardDescription>Ingrese sus credenciales para acceder al sistema.</CardDescription>
+            <CardTitle className="text-2xl">¿Olvidaste tu contraseña?</CardTitle>
+            <CardDescription>
+              Introduce tu correo electrónico y te enviaremos un enlace para restablecerla.
+            </CardDescription>
           </CardHeader>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleResetPassword}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Correo Electrónico</Label>
@@ -65,33 +67,10 @@ export default function LoginPage() {
                   <Input 
                     id="email" 
                     type="email" 
-                    placeholder="admin@smartrest.ai" 
+                    placeholder="tu@correo.com" 
                     className="pl-10"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required 
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Link 
-                    href="/forgot-password" 
-                    className="text-xs font-bold text-primary hover:underline"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    placeholder="••••••••" 
-                    className="pl-10"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required 
                   />
                 </div>
@@ -100,11 +79,15 @@ export default function LoginPage() {
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
                 {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Entrar al Sistema
+                Enviar Enlace
               </Button>
-              <p className="text-sm text-center text-muted-foreground">
-                ¿No tienes cuenta? <Link href="/register" className="text-primary font-bold hover:underline">Regístrate gratis</Link>
-              </p>
+              <Link 
+                href="/login" 
+                className="text-sm font-medium text-primary flex items-center gap-2 hover:underline"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Volver al inicio de sesión
+              </Link>
             </CardFooter>
           </form>
         </Card>

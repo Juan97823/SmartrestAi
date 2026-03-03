@@ -10,7 +10,9 @@ export default function AuthWrapper({ children }: { children: React.ReactNode })
   const { user, isUserLoading } = useUser()
   const router = useRouter()
   const pathname = usePathname()
-  const isAuthPage = pathname === '/login' || pathname === '/register'
+  
+  const authRoutes = ['/login', '/register', '/forgot-password'];
+  const isAuthPage = authRoutes.includes(pathname);
 
   React.useEffect(() => {
     if (!isUserLoading && !user && !isAuthPage) {
