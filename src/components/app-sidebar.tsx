@@ -16,9 +16,11 @@ import {
   LogOut
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { SUCURSALES } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/firebase"
+import { signOut } from "firebase/auth"
 
 import {
   Sidebar,
@@ -54,11 +56,17 @@ const menuItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const auth = useAuth()
   const [activeBranch, setActiveBranch] = React.useState(SUCURSALES[0])
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated')
-    window.location.href = '/login'
+  const handleLogout = async () => {
+    try {
+      await signOut(auth)
+      router.push('/login')
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error)
+    }
   }
 
   return (
