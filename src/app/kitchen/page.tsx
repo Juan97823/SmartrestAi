@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,19 +10,22 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase'
 import { collection, query, where, orderBy, updateDoc, doc } from 'firebase/firestore'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
+import { useBranch } from '@/components/branch-context'
 
 export default function KitchenPage() {
   const db = useFirestore()
   const { toast } = useToast()
+  const { selectedBranch } = useBranch()
   
-  // Consulta en tiempo real (WebSocket simulado vía Firestore onSnapshot)
+  // Consulta filtrada por la sucursal seleccionada en tiempo real
   const ordersQuery = useMemoFirebase(() => {
     return query(
       collection(db, 'orders'),
+      where('branchId', '==', selectedBranch.id),
       where('status', 'in', ['preparando', 'listo']),
       orderBy('createdAt', 'desc')
     )
-  }, [db])
+  }, [db, selectedBranch.id])
 
   const { data: orders, isLoading } = useCollection(ordersQuery)
 
@@ -37,14 +40,19 @@ export default function KitchenPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <ChefHat className="h-8 w-8 text-primary" />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <ChefHat className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Monitor de Cocina</h1>
+            <p className="text-muted-foreground">{selectedBranch.nombre} - Tiempo Real</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Monitor de Cocina</h1>
-          <p className="text-muted-foreground">Sincronización en tiempo real vía WebSockets nativos de Firestore.</p>
-        </div>
+        <Badge variant="outline" className="text-xs py-1">
+          Sincronizado vía Firestore
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -56,7 +64,7 @@ export default function KitchenPage() {
         ) : !orders || orders.length === 0 ? (
           <Card className="col-span-full border-dashed border-2 flex items-center justify-center min-h-[300px] text-muted-foreground bg-secondary/10">
             <div className="text-center">
-              <p className="text-lg font-medium">No hay pedidos pendientes</p>
+              <p className="text-lg font-medium">No hay pedidos pendientes en {selectedBranch.nombre}</p>
               <p className="text-sm italic">La cocina está al día.</p>
             </div>
           </Card>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react'
@@ -14,9 +15,11 @@ import {
   Loader2
 } from 'lucide-react'
 import { aiDishRecommendation } from '@/ai/flows/ai-dish-recommendation'
-import { createOrder } from '@/services/firestore-service'
+import { useFirestore } from '@/firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { POPULAR_DISHES } from '@/lib/mock-data'
 import { useToast } from '@/hooks/use-toast'
+import { useBranch } from '@/components/branch-context'
 import { cn } from '@/lib/utils'
 
 export default function OrdersPage() {
@@ -24,7 +27,10 @@ export default function OrdersPage() {
   const [loadingAi, setLoadingAi] = useState(false)
   const [sending, setSending] = useState(false)
   const [recommendations, setRecommendations] = useState<{items: string[], reason: string} | null>(null)
+  
+  const db = useFirestore()
   const { toast } = useToast()
+  const { selectedBranch } = useBranch()
 
   const addToOrder = (dish: string) => {
     setCurrentOrder(prev => [...prev, dish])
@@ -57,14 +63,17 @@ export default function OrdersPage() {
     if (currentOrder.length === 0) return
     setSending(true)
     try {
-      await createOrder({
-        tableId: '4', // Simulado
+      // Guardar directamente en Firestore usando el contexto de la sucursal seleccionada
+      await addDoc(collection(db, 'orders'), {
+        tableId: Math.floor(Math.random() * 10) + 1, // Mesa aleatoria
         items: currentOrder,
         status: 'preparando',
         priority: 'Media',
-        branchId: 'suc-01'
+        branchId: selectedBranch.id,
+        createdAt: serverTimestamp()
       })
-      toast({ title: "¡Pedido Enviado!", description: "La cocina ha recibido el pedido en tiempo real." })
+
+      toast({ title: "¡Pedido Enviado!", description: `Registrado en ${selectedBranch.nombre}` })
       setCurrentOrder([])
       setRecommendations(null)
     } catch (err) {
@@ -84,9 +93,14 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-8 animate-in slide-in-from-right-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Gestión de Pedidos</h1>
-        <p className="text-muted-foreground">Procesa pedidos y mejora la experiencia con recomendaciones de IA.</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Gestión de Pedidos</h1>
+          <p className="text-muted-foreground">Nueva orden para <span className="text-primary font-bold">{selectedBranch.nombre}</span></p>
+        </div>
+        <Badge variant="secondary" className="bg-primary/10 text-primary">
+          Sucursal ID: {selectedBranch.id}
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -94,7 +108,7 @@ export default function OrdersPage() {
           <Card className="border-none shadow-md">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Explorador de Menú</CardTitle>
+                <CardTitle className="text-lg">Menú del Día</CardTitle>
                 <div className="relative w-48">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input placeholder="Buscar plato..." className="pl-8 h-9" />
@@ -107,11 +121,11 @@ export default function OrdersPage() {
                   <Button 
                     key={dish} 
                     variant="outline" 
-                    className="justify-between h-auto py-4 px-4 hover:bg-primary hover:text-white transition-all group border-secondary"
+                    className="justify-between h-auto py-4 px-4 hover:bg-primary hover:text-white transition-all group border-secondary text-left"
                     onClick={() => addToOrder(dish)}
                   >
-                    <span className="font-medium">{dish}</span>
-                    <Plus className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className="font-medium whitespace-normal">{dish}</span>
+                    <Plus className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2" />
                   </Button>
                 ))}
               </div>
@@ -156,11 +170,11 @@ export default function OrdersPage() {
           <CardHeader className="bg-primary text-primary-foreground">
             <CardTitle className="flex items-center gap-2">
               <ShoppingCart className="h-5 w-5" />
-              Cesta Activa
+              Cesta de {selectedBranch.nombre}
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="min-h-[200px] space-y-3">
+            <div className="min-h-[200px] max-h-[400px] overflow-y-auto space-y-3">
               {currentOrder.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground opacity-50">
                   <ClipboardList className="h-12 w-12 mb-2" />
@@ -205,7 +219,7 @@ export default function OrdersPage() {
                   disabled={sending || currentOrder.length === 0}
                 >
                   {sending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  Enviar a Cocina
+                  Enviar Comanda
                 </Button>
               </div>
             </div>

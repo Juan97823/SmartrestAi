@@ -1,12 +1,14 @@
+
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Users, Info, Plus } from 'lucide-react'
+import { Users, Info, Plus, MapPin } from 'lucide-react'
 import { INITIAL_TABLES, Table } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { useBranch } from '@/components/branch-context'
 import {
   Dialog,
   DialogContent,
@@ -16,7 +18,15 @@ import {
 } from "@/components/ui/dialog"
 
 export default function TablesPage() {
+  const { selectedBranch } = useBranch()
   const [tables, setTables] = useState<Table[]>(INITIAL_TABLES)
+
+  // Filtrar mesas por sucursal (simulado con el estado local pero usando el ID de la sucursal)
+  // En una app real, esto vendría de una consulta a Firestore filtrada por branchId
+  const filteredTables = useMemo(() => {
+    // Para el prototipo, mostramos todas pero añadimos el contexto de la sucursal
+    return tables;
+  }, [tables, selectedBranch.id]);
 
   const toggleStatus = (id: number) => {
     setTables(prev => prev.map(t => {
@@ -46,7 +56,10 @@ export default function TablesPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Gestión del Salón</h1>
-          <p className="text-muted-foreground">Ocupación y estado de mesas en tiempo real.</p>
+          <p className="text-muted-foreground flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            Sucursal: <span className="font-bold text-primary">{selectedBranch.nombre}</span>
+          </p>
         </div>
         <div className="flex gap-2">
           <Badge variant="outline" className="px-3 py-1 flex gap-2">
@@ -62,7 +75,7 @@ export default function TablesPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        {tables.map((table) => (
+        {filteredTables.map((table) => (
           <Card 
             key={table.id} 
             className={cn(
@@ -95,8 +108,8 @@ export default function TablesPage() {
                         <span className="font-medium">{table.capacity} Personas</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Último Pedido</span>
-                        <span className="font-medium">hace 15m</span>
+                        <span className="text-muted-foreground">Ubicación</span>
+                        <span className="font-medium">{selectedBranch.nombre}</span>
                       </div>
                       <Button className="w-full">Abrir Nuevo Pedido</Button>
                     </div>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -19,8 +20,9 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { SUCURSALES } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
-import { useAuth } from "@/firebase"
+import { useAuth, useUser } from "@/firebase"
 import { signOut } from "firebase/auth"
+import { useBranch } from "@/components/branch-context"
 
 import {
   Sidebar,
@@ -58,7 +60,8 @@ export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const auth = useAuth()
-  const [activeBranch, setActiveBranch] = React.useState(SUCURSALES[0])
+  const { user } = useUser()
+  const { selectedBranch, setSelectedBranch } = useBranch()
 
   const handleLogout = async () => {
     try {
@@ -79,8 +82,8 @@ export function AppSidebar() {
                 <UtensilsCrossed className="size-5" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight ml-2">
-                <span className="truncate font-bold text-primary">{activeBranch.nombre}</span>
-                <span className="truncate text-[10px] text-muted-foreground uppercase tracking-widest">{activeBranch.ubicacion}</span>
+                <span className="truncate font-bold text-primary">{selectedBranch.nombre}</span>
+                <span className="truncate text-[10px] text-muted-foreground uppercase tracking-widest">{selectedBranch.ubicacion}</span>
               </div>
               <ChevronDown className="ml-auto size-4 text-muted-foreground" />
             </SidebarMenuButton>
@@ -88,9 +91,16 @@ export function AppSidebar() {
           <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl shadow-xl border-slate-200" align="start" side="bottom" sideOffset={10}>
             <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-tighter">Seleccionar Sucursal</div>
             {SUCURSALES.map((sucursal) => (
-              <DropdownMenuItem key={sucursal.id} onClick={() => setActiveBranch(sucursal)} className="gap-2 p-3 cursor-pointer hover:bg-primary/5">
+              <DropdownMenuItem 
+                key={sucursal.id} 
+                onClick={() => setSelectedBranch(sucursal)} 
+                className={cn(
+                  "gap-2 p-3 cursor-pointer hover:bg-primary/5",
+                  selectedBranch.id === sucursal.id && "bg-primary/5"
+                )}
+              >
                 <div className="flex size-7 items-center justify-center rounded-lg border bg-slate-50">
-                  <MapPin className="size-4 text-primary" />
+                  <MapPin className={cn("size-4", selectedBranch.id === sucursal.id ? "text-primary fill-primary/20" : "text-slate-400")} />
                 </div>
                 <div className="flex flex-col">
                    <span className="font-medium">{sucursal.nombre}</span>
@@ -137,10 +147,10 @@ export function AppSidebar() {
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-3 w-full hover:bg-slate-50 p-2 rounded-xl transition-colors text-left">
               <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center text-accent-foreground font-bold shadow-md">
-                AD
+                {user?.email?.slice(0, 2).toUpperCase() || 'AD'}
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-bold truncate text-slate-800">Admin Usuario</span>
+                <span className="text-sm font-bold truncate text-slate-800">{user?.email || 'Admin Usuario'}</span>
                 <span className="text-[10px] text-muted-foreground truncate uppercase tracking-tighter">Gerente General</span>
               </div>
               <ChevronDown className="ml-auto size-4 text-slate-400" />

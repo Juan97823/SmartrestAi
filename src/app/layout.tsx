@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/toaster';
 import AuthWrapper from '@/components/auth-wrapper';
 import { usePathname } from 'next/navigation';
 import { FirebaseClientProvider } from '@/firebase';
+import { BranchProvider } from '@/components/branch-context';
 
 export default function RootLayout({
   children,
@@ -27,23 +28,25 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
         <FirebaseClientProvider>
-          <AuthWrapper>
-            {isAuthPage ? (
-              <main className="min-h-screen bg-background">
-                {children}
-              </main>
-            ) : (
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                  <main className="p-4 md:p-8 min-h-screen bg-background">
-                    {children}
-                  </main>
-                </SidebarInset>
-              </SidebarProvider>
-            )}
-          </AuthWrapper>
-          <Toaster />
+          <BranchProvider>
+            <AuthWrapper>
+              {isAuthPage ? (
+                <main className="min-h-screen bg-background">
+                  {children}
+                </main>
+              ) : (
+                <SidebarProvider>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <main className="p-4 md:p-8 min-h-screen bg-background">
+                      {children}
+                    </main>
+                  </SidebarInset>
+                </SidebarProvider>
+              )}
+            </AuthWrapper>
+            <Toaster />
+          </BranchProvider>
         </FirebaseClientProvider>
       </body>
     </html>

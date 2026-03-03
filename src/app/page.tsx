@@ -1,3 +1,4 @@
+
 "use client"
 
 import React from 'react'
@@ -10,7 +11,7 @@ import {
   AlertTriangle,
   TrendingUp,
   ArrowUpRight,
-  ArrowDownRight
+  MapPin
 } from 'lucide-react'
 import { 
   Bar, 
@@ -23,6 +24,7 @@ import {
 } from 'recharts'
 import { RECENT_SALES_DATA } from '@/lib/mock-data'
 import { Badge } from '@/components/ui/badge'
+import { useBranch } from '@/components/branch-context'
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('es-CO', {
@@ -33,11 +35,21 @@ const formatCurrency = (value: number) => {
 };
 
 export default function Dashboard() {
+  const { selectedBranch } = useBranch();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Panel Ejecutivo</h1>
-        <p className="text-muted-foreground">Resumen en tiempo real de las operaciones globales (Valores en COP).</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Panel Ejecutivo</h1>
+          <p className="text-muted-foreground flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            Viendo datos de: <span className="font-bold text-primary">{selectedBranch.nombre}</span>
+          </p>
+        </div>
+        <Badge variant="outline" className="px-4 py-1 border-primary/20 bg-primary/5 text-primary">
+          Actualizado hace 2 minutos
+        </Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -102,7 +114,7 @@ export default function Dashboard() {
         <Card className="lg:col-span-4">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Tendencia de Ventas Semanal (COP)</CardTitle>
+              <CardTitle>Ventas Semanales - {selectedBranch.nombre}</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
           </CardHeader>
@@ -130,7 +142,7 @@ export default function Dashboard() {
 
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Pedidos en Vivo</CardTitle>
+            <CardTitle>Últimos Movimientos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
