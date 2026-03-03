@@ -5,7 +5,7 @@ import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Clock, AlertCircle, ChefHat, Loader2 } from 'lucide-react'
+import { CheckCircle2, Clock, AlertCircle, ChefHat, Loader2, ClipboardList } from 'lucide-react'
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase'
 import { collection, query, where, orderBy, updateDoc, doc } from 'firebase/firestore'
 import { cn } from '@/lib/utils'
@@ -19,19 +19,23 @@ export default function KitchenPage() {
   
   // Consulta filtrada por la sucursal seleccionada en tiempo real
   const ordersQuery = useMemoFirebase(() => {
+    if (!selectedBranch?.id) return null;
     return query(
       collection(db, 'orders'),
       where('branchId', '==', selectedBranch.id),
       where('status', 'in', ['preparando', 'listo']),
       orderBy('createdAt', 'desc')
     )
-  }, [db, selectedBranch.id])
+  }, [db, selectedBranch?.id])
 
-  const { data: orders, isLoading } = useCollection(ordersQuery)
+  const { data: orders, isLoading, error } = useCollection(ordersQuery)
 
   const handleComplete = async (id: string) => {
     try {
-      await updateDoc(doc(db, 'orders', id), { status: 'listo' })
+      await updateDoc(doc(db, 'orders', id), { 
+        status: 'listo',
+        updatedAt: new Date().toISOString()
+      })
       toast({ title: "Pedido actualizado", description: "El pedido está listo para servir." })
     } catch (err) {
       toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el pedido." })
@@ -55,6 +59,15 @@ export default function KitchenPage() {
         </Badge>
       </div>
 
+      {error && (
+        <Card className="border-destructive bg-destructive/5">
+          <CardContent className="pt-6 flex items-center gap-3 text-destructive">
+            <AlertCircle className="h-5 w-5" />
+            <p className="text-sm font-medium">Error de conexión: Verifica tus permisos o la configuración de la sucursal.</p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
           <div className="col-span-full flex flex-col items-center py-20 text-muted-foreground">
@@ -63,9 +76,12 @@ export default function KitchenPage() {
           </div>
         ) : !orders || orders.length === 0 ? (
           <Card className="col-span-full border-dashed border-2 flex items-center justify-center min-h-[300px] text-muted-foreground bg-secondary/10">
-            <div className="text-center">
-              <p className="text-lg font-medium">No hay pedidos pendientes en {selectedBranch.nombre}</p>
-              <p className="text-sm italic">La cocina está al día.</p>
+            <div className="text-center flex flex-col items-center gap-3">
+              <ClipboardList className="h-12 w-12 opacity-20" />
+              <div>
+                <p className="text-lg font-medium">No hay pedidos pendientes en {selectedBranch.nombre}</p>
+                <p className="text-sm italic">La cocina está al día.</p>
+              </div>
             </div>
           </Card>
         ) : (
@@ -78,8 +94,8 @@ export default function KitchenPage() {
                 </div>
                 <Badge 
                   className={cn(
-                    order.priority === 'Alta' ? "bg-destructive" : 
-                    order.priority === 'Media' ? "bg-amber-500" : "bg-primary"
+                    order.priority === 'Alta' ? "bg-destructive text-destructive-foreground" : 
+                    order.priority === 'Media' ? "bg-amber-500 text-white" : "bg-primary text-primary-foreground"
                   )}
                 >
                   {order.priority}
@@ -105,7 +121,7 @@ export default function KitchenPage() {
                 </Button>
                 <Button 
                   size="sm" 
-                  className="gap-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
                   onClick={() => handleComplete(order.id!)}
                   disabled={order.status === 'listo'}
                 >

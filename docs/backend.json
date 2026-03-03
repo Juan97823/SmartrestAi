@@ -5,160 +5,92 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Role",
       "type": "object",
-      "description": "Defines the different access levels and responsibilities for users within the SmartRest AI system.",
+      "description": "Define los niveles de acceso y responsabilidades de los usuarios en SmartRest AI.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Role entity."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the role (e.g., 'Admin', 'Cashier', 'Waiter', 'Kitchen')."
-        },
-        "description": {
-          "type": "string",
-          "description": "A detailed description of the role's permissions and responsibilities."
-        }
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" }
       },
-      "required": [
-        "id",
-        "name",
-        "description"
-      ]
+      "required": ["id", "name", "description"]
     },
     "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "User",
       "type": "object",
-      "description": "Represents a staff member of the restaurant with an assigned role.",
+      "description": "Representa a un miembro del personal del restaurante.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the User entity."
-        },
-        "email": {
-          "type": "string",
-          "description": "The user's email address, used for login and identification.",
-          "format": "email"
-        },
-        "firstName": {
-          "type": "string",
-          "description": "The user's first name."
-        },
-        "lastName": {
-          "type": "string",
-          "description": "The user's last name."
-        },
-        "roleId": {
-          "type": "string",
-          "description": "Reference to the Role entity, indicating the user's assigned role."
-        },
-        "isActive": {
-          "type": "boolean",
-          "description": "Indicates whether the user account is currently active."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Timestamp when the user account was created.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Timestamp when the user account was last updated.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "roleId": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "email",
-        "firstName",
-        "lastName",
-        "roleId",
-        "isActive",
-        "createdAt"
-      ]
+      "required": ["id", "email", "firstName", "lastName", "roleId", "isActive", "createdAt"]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Representa una comanda o pedido realizado en una mesa.",
+      "properties": {
+        "id": { "type": "string" },
+        "tableId": { "type": "string" },
+        "branchId": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["preparando", "listo", "servido", "cancelado"] },
+        "priority": { "type": "string", "enum": ["Baja", "Media", "Alta"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["tableId", "branchId", "items", "status", "priority", "createdAt"]
     },
     "Ingredient": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Ingredient",
       "type": "object",
-      "description": "Represents a raw material or stock item used in a specific branch.",
+      "description": "Representa un insumo en el inventario.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Ingredient entity."
-        },
-        "branchId": {
-          "type": "string",
-          "description": "Reference to the branch this ingredient belongs to."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the ingredient (e.g., 'Tomatoes')."
-        },
-        "unitOfMeasure": {
-          "type": "string",
-          "description": "The unit of measure (e.g., 'kg', 'liters')."
-        },
-        "currentStock": {
-          "type": "number",
-          "description": "The current quantity available."
-        },
-        "averageDailyConsumption": {
-          "type": "number",
-          "description": "Estimated average daily consumption for IA predictions."
-        },
-        "minStockLevel": {
-          "type": "number",
-          "description": "The minimum stock level for alerts."
-        },
-        "createdAt": {
-          "type": "string",
-          "description": "Creation timestamp.",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "description": "Last update timestamp.",
-          "format": "date-time"
-        }
+        "id": { "type": "string" },
+        "branchId": { "type": "string" },
+        "name": { "type": "string" },
+        "unitOfMeasure": { "type": "string" },
+        "currentStock": { "type": "number" },
+        "averageDailyConsumption": { "type": "number" },
+        "minStockLevel": { "type": "number" }
       },
-      "required": [
-        "id",
-        "branchId",
-        "name",
-        "unitOfMeasure",
-        "currentStock",
-        "minStockLevel",
-        "createdAt"
-      ]
+      "required": ["id", "branchId", "name", "unitOfMeasure", "currentStock", "minStockLevel"]
     }
   },
   "auth": {
-    "providers": [
-      "password",
-      "anonymous"
-    ]
+    "providers": ["password", "anonymous"]
   },
   "firestore": {
     "structure": [
       {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": { "$ref": "#/backend/entities/User" },
+          "description": "Perfiles de usuario del sistema."
+        }
+      },
+      {
+        "path": "/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": { "$ref": "#/backend/entities/Order" },
+          "description": "Gestión de comandas en tiempo real."
+        }
+      },
+      {
         "path": "/ingredients/{ingredientId}",
         "definition": {
           "entityName": "Ingredient",
-          "schema": {
-            "$ref": "#/backend/entities/Ingredient"
-          },
-          "description": "Tracks raw ingredients for inventory management per branch.",
-          "params": [
-            {
-              "name": "ingredientId",
-              "description": "Unique identifier for an ingredient."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Ingredient" },
+          "description": "Inventario de insumos por sucursal."
         }
       }
-    ],
-    "reasoning": "Se migra el inventario a Firestore con branchId para permitir gestión independiente por sucursal."
+    ]
   }
 }

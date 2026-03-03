@@ -3,24 +3,25 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- HELPER FUNCTIONS ---
+    // --- FUNCIONES AUXILIARES ---
     function isSignedIn() {
       return request.auth != null;
     }
+    
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
-    function isWaiter() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_waiter/$(request.auth.uid));
-    }
-    function isCashier() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_cashier/$(request.auth.uid));
-    }
-    function isKitchen() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_kitchen/$(request.auth.uid));
+    
+    function isStaff() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/roles_waiter/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/roles_kitchen/$(request.auth.uid)) ||
+        exists(/databases/$(database)/documents/roles_cashier/$(request.auth.uid))
+      );
     }
 
-    // --- COLLECTION RULES ---
+    // --- REGLAS DE COLECCIONES ---
 
     match /users/{userId} {
       allow get: if isSignedIn();
@@ -28,24 +29,25 @@ service cloud.firestore {
       allow create, update: if isAdmin() || request.auth.uid == userId;
     }
 
+    // Reglas simplificadas para roles (atómicas)
     match /roles_admin/{userId} { allow read, write: if isAdmin(); }
     match /roles_waiter/{userId} { allow read, write: if isAdmin(); }
     match /roles_kitchen/{userId} { allow read, write: if isAdmin(); }
+    match /roles_cashier/{userId} { allow read, write: if isAdmin(); }
 
     match /orders/{orderId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
-      allow update: if isSignedIn();
+      // Permitir lectura y escritura a cualquier usuario logueado para facilitar la operación fluida
+      allow read, write: if isSignedIn();
     }
 
     match /ingredients/{id} {
       allow read: if isSignedIn();
-      allow write: if isAdmin() || isKitchen();
+      allow write: if isStaff();
     }
 
     match /tables/{id} {
       allow read: if isSignedIn();
-      allow write: if isAdmin() || isWaiter();
+      allow write: if isStaff();
     }
   }
 }
