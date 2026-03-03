@@ -1,0 +1,13 @@
+node_modules
+.next
+out
+build
+dist
+.git
+.env
+.env.local
+.env.production
+README.md
+docker-compose.yml
+Dockerfile
+.github

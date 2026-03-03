@@ -8,13 +8,12 @@ import {
   Box,
   TrendingUp,
   MessageSquare,
-  Settings,
-  Users,
   PieChart,
   ChefHat,
   MapPin,
   ChevronDown,
-  BarChart3
+  BarChart3,
+  LogOut
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -37,66 +36,83 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 
 const menuItems = [
-  { title: "Panel Control", icon: LayoutDashboard, url: "/" },
-  { title: "Gestión Mesas", icon: UtensilsCrossed, url: "/tables" },
+  { title: "Panel de Control", icon: LayoutDashboard, url: "/" },
+  { title: "Gestión de Mesas", icon: UtensilsCrossed, url: "/tables" },
   { title: "Pedidos en Vivo", icon: ClipboardList, url: "/orders" },
-  { title: "Monitor Cocina", icon: ChefHat, url: "/kitchen" },
-  { title: "Inventario", icon: Box, url: "/inventory" },
-  { title: "Insights IA", icon: TrendingUp, url: "/ai-insights" },
-  { title: "Rentabilidad", icon: BarChart3, url: "/rentabilidad" },
-  { title: "Reportes", icon: PieChart, url: "/reports" },
-  { title: "Chat Soporte", icon: MessageSquare, url: "/chat" },
+  { title: "Monitor de Cocina", icon: ChefHat, url: "/kitchen" },
+  { title: "Inventario Inteligente", icon: Box, url: "/inventory" },
+  { title: "Analítica Predictiva", icon: TrendingUp, url: "/ai-insights" },
+  { title: "Rentabilidad IA", icon: BarChart3, url: "/rentabilidad" },
+  { title: "Reportes de Venta", icon: PieChart, url: "/reports" },
+  { title: "Asistente de Soporte", icon: MessageSquare, url: "/chat" },
 ]
 
 export function AppSidebar() {
   const pathname = usePathname()
   const [activeBranch, setActiveBranch] = React.useState(SUCURSALES[0])
 
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated')
+    window.location.href = '/login'
+  }
+
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarHeader className="h-16 flex items-center px-4">
+    <Sidebar collapsible="icon" className="border-r border-slate-200">
+      <SidebarHeader className="h-20 flex items-center px-4 border-b border-slate-100">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <UtensilsCrossed className="size-4" />
+            <SidebarMenuButton size="lg" className="hover:bg-slate-50 transition-colors">
+              <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg rotate-3">
+                <UtensilsCrossed className="size-5" />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{activeBranch.nombre}</span>
-                <span className="truncate text-xs">{activeBranch.ubicacion}</span>
+              <div className="grid flex-1 text-left text-sm leading-tight ml-2">
+                <span className="truncate font-bold text-primary">{activeBranch.nombre}</span>
+                <span className="truncate text-[10px] text-muted-foreground uppercase tracking-widest">{activeBranch.ubicacion}</span>
               </div>
-              <ChevronDown className="ml-auto size-4" />
+              <ChevronDown className="ml-auto size-4 text-muted-foreground" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg" align="start" side="bottom" sideOffset={4}>
+          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl shadow-xl border-slate-200" align="start" side="bottom" sideOffset={10}>
+            <div className="px-3 py-2 text-xs font-bold text-muted-foreground uppercase tracking-tighter">Seleccionar Sucursal</div>
             {SUCURSALES.map((sucursal) => (
-              <DropdownMenuItem key={sucursal.id} onClick={() => setActiveBranch(sucursal)} className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-sm border">
-                  <MapPin className="size-4 shrink-0" />
+              <DropdownMenuItem key={sucursal.id} onClick={() => setActiveBranch(sucursal)} className="gap-2 p-3 cursor-pointer hover:bg-primary/5">
+                <div className="flex size-7 items-center justify-center rounded-lg border bg-slate-50">
+                  <MapPin className="size-4 text-primary" />
                 </div>
-                {sucursal.nombre}
+                <div className="flex flex-col">
+                   <span className="font-medium">{sucursal.nombre}</span>
+                   <span className="text-[10px] text-muted-foreground">{sucursal.ubicacion}</span>
+                </div>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarHeader>
-      <SidebarContent>
+      
+      <SidebarContent className="py-4">
         <SidebarGroup>
-          <SidebarGroupLabel>Menú Principal</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-2">Administración</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="px-2 space-y-1">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
                     tooltip={item.title}
+                    className={cn(
+                      "rounded-xl px-4 py-6 transition-all",
+                      pathname === item.url 
+                        ? "bg-primary/10 text-primary font-bold shadow-sm" 
+                        : "hover:bg-slate-100 text-slate-600"
+                    )}
                   >
-                    <Link href={item.url}>
-                      <item.icon className="h-4 w-4" />
+                    <Link href={item.url} className="flex items-center gap-3">
+                      <item.icon className={cn("h-5 w-5", pathname === item.url ? "text-primary" : "text-slate-400")} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -106,16 +122,37 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4 border-t border-border">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold">
-            AD
-          </div>
-          <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-medium truncate">Admin Usuario</span>
-            <span className="text-xs text-muted-foreground truncate">Gerencia General</span>
-          </div>
-        </div>
+
+      <SidebarFooter className="p-4 border-t border-slate-100">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-3 w-full hover:bg-slate-50 p-2 rounded-xl transition-colors text-left">
+              <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center text-accent-foreground font-bold shadow-md">
+                AD
+              </div>
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-sm font-bold truncate text-slate-800">Admin Usuario</span>
+                <span className="text-[10px] text-muted-foreground truncate uppercase tracking-tighter">Gerente General</span>
+              </div>
+              <ChevronDown className="ml-auto size-4 text-slate-400" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 rounded-xl shadow-2xl border-slate-200" align="end" side="top" sideOffset={12}>
+             <DropdownMenuItem className="p-3 gap-2 cursor-pointer hover:bg-slate-50">
+               <div className="size-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                 <MapPin className="size-4 text-slate-500" />
+               </div>
+               <span className="text-sm">Configuración Perfil</span>
+             </DropdownMenuItem>
+             <DropdownMenuSeparator />
+             <DropdownMenuItem onClick={handleLogout} className="p-3 gap-2 cursor-pointer text-destructive hover:bg-destructive/10">
+               <div className="size-8 rounded-lg bg-destructive/10 flex items-center justify-center">
+                 <LogOut className="size-4" />
+               </div>
+               <span className="text-sm font-bold">Cerrar Sesión</span>
+             </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </SidebarFooter>
     </Sidebar>
   )
