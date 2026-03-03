@@ -1,26 +1,24 @@
 'use server';
 /**
- * @fileOverview Provides AI-generated dish recommendations based on sales history and customer context.
+ * @fileOverview Proporciona recomendaciones de platos generadas por IA basadas en el historial de ventas y el contexto del cliente.
  *
- * - aiDishRecommendation - A function that generates dish recommendations.
- * - DishRecommendationInput - The input type for the aiDishRecommendation function.
- * - DishRecommendationOutput - The return type for the aiDishRecommendation function.
+ * - aiDishRecommendation - Una función que genera recomendaciones de platos.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const DishRecommendationInputSchema = z.object({
-  orderedDishNames: z.array(z.string()).describe('A list of dishes already ordered by the customer.'),
-  customerPreferences: z.string().optional().describe('Any known customer preferences or dietary restrictions (e.g., "vegetarian", "no nuts", "prefers spicy food").'),
-  occasionOrTime: z.string().optional().describe('Context such as "dinner", "lunch", "dessert", "happy hour", or "special celebration".'),
-  popularItemsRecently: z.array(z.string()).optional().describe('A list of popular dishes or pairings based on recent sales data to influence recommendations.'),
+  orderedDishNames: z.array(z.string()).describe('Una lista de platos ya ordenados por el cliente.'),
+  customerPreferences: z.string().optional().describe('Cualquier preferencia conocida del cliente o restricciones dietéticas (ej., "vegetariano", "sin nueces", "prefiere comida picante").'),
+  occasionOrTime: z.string().optional().describe('Contexto como "cena", "almuerzo", "postre", "happy hour" o "celebración especial".'),
+  popularItemsRecently: z.array(z.string()).optional().describe('Una lista de platos populares o maridajes basados en datos de ventas recientes.'),
 });
 export type DishRecommendationInput = z.infer<typeof DishRecommendationInputSchema>;
 
 const DishRecommendationOutputSchema = z.object({
-  recommendedDishes: z.array(z.string()).describe('A list of recommended dishes, considering the ordered dishes and customer preferences, aiming for upsell or enhanced experience.'),
-  reasoning: z.string().describe('A brief and persuasive explanation for the recommendations, highlighting why they complement the current order or meet preferences.'),
+  recommendedDishes: z.array(z.string()).describe('Una lista de platos recomendados para el upsell.'),
+  reasoning: z.string().describe('Una explicación breve y persuasiva para las recomendaciones en español.'),
 });
 export type DishRecommendationOutput = z.infer<typeof DishRecommendationOutputSchema>;
 
@@ -32,34 +30,26 @@ const dishRecommendationPrompt = ai.definePrompt({
   name: 'dishRecommendationPrompt',
   input: { schema: DishRecommendationInputSchema },
   output: { schema: DishRecommendationOutputSchema },
-  prompt: `You are an expert waiter and sommelier at a high-end restaurant, known for your exceptional ability to recommend the perfect complementary dishes to enhance a customer's dining experience. Your primary goal is to provide recommendations that will delight the customer, align with their tastes, and potentially lead to an upsell, thereby improving their overall meal.
+  prompt: `Eres un mesero experto y sommelier en un restaurante de alta gama en Colombia. Tu objetivo es recomendar platos complementarios para mejorar la experiencia del cliente y aumentar el ticket promedio.
 
-The customer has already ordered the following dishes:
+El cliente ya ha pedido:
 {{#if orderedDishNames}}
   {{#each orderedDishNames}}
     - {{{this}}}
   {{/each}}
 {{else}}
-  No dishes have been ordered yet, this is an opportunity to suggest initial appealing options.
+  Aún no han pedido nada, sugiere opciones atractivas para empezar.
 {{/if}}
 
 {{#if customerPreferences}}
-Known customer preferences or dietary restrictions: {{{customerPreferences}}}
+Preferencias: {{{customerPreferences}}}
 {{/if}}
 
 {{#if occasionOrTime}}
-The current dining context or occasion is: {{{occasionOrTime}}}
+Contexto: {{{occasionOrTime}}}
 {{/if}}
 
-{{#if popularItemsRecently}}
-Based on recent sales history and popular demand, some highly recommended items or classic pairings include:
-{{#each popularItemsRecently}}
-  - {{{this}}}
-{{/each}}
-Consider these popular choices or their complementary aspects when making your recommendations.
-{{/if}}
-
-Based on all this information, thoughtfully recommend 1-3 dishes that would best complement their current order or serve as appealing options if no dishes are ordered yet. Focus on items that would naturally fit or significantly elevate their meal. For each recommendation, provide a brief, compelling, and professional reason, highlighting how it enhances the dining experience, complements the existing choices, or aligns with their preferences. Think about taste profiles, culinary balance, and customer satisfaction.`,
+Basado en esto, recomienda 1-3 platos que complementen su orden actual. Proporciona una explicación persuasiva y profesional en ESPAÑOL Colombiano, enfocándote en el sabor y la armonía del menú.`,
 });
 
 const dishRecommendationFlow = ai.defineFlow(

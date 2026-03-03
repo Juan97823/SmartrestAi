@@ -11,13 +11,15 @@ import {
   RefreshCw, 
   ArrowRight,
   Sparkles,
-  TrendingDown
+  TrendingDown,
+  Loader2
 } from 'lucide-react'
 import { INVENTORY_ITEMS } from '@/lib/mock-data'
 import { 
   predictiveInventoryAlerts, 
   PredictiveInventoryAlertsOutput 
 } from '@/ai/flows/predictive-inventory-alerts'
+import { cn } from '@/lib/utils'
 
 export default function InventoryPage() {
   const [loading, setLoading] = useState(false)
@@ -45,8 +47,8 @@ export default function InventoryPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Inventory Control</h1>
-          <p className="text-muted-foreground">AI-powered stock prediction and management.</p>
+          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Control de Inventario</h1>
+          <p className="text-muted-foreground">Predicción de stock y gestión asistida por IA.</p>
         </div>
         <Button 
           variant="outline" 
@@ -54,8 +56,8 @@ export default function InventoryPage() {
           disabled={loading}
           className="flex gap-2"
         >
-          <Sparkles className={cn("h-4 w-4 text-accent", loading && "animate-spin")} />
-          Refresh AI Insights
+          {loading ? <Loader2 className="h-4 w-4 animate-spin text-accent" /> : <Sparkles className="h-4 w-4 text-accent" />}
+          Actualizar Insights IA
         </Button>
       </div>
 
@@ -64,14 +66,14 @@ export default function InventoryPage() {
           {aiAlerts.atRiskIngredients.map((alert, idx) => (
             <Alert key={idx} variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle className="font-bold">Stock Risk: {alert.name}</AlertTitle>
+              <AlertTitle className="font-bold">Riesgo de Stock: {alert.name}</AlertTitle>
               <AlertDescription className="mt-2 space-y-2">
                 <p>{alert.reason}</p>
                 <div className="flex items-center gap-4 text-sm bg-white/50 p-2 rounded">
-                  <span className="font-bold">Estimated Remaining: {alert.estimatedDaysRemaining} days</span>
+                  <span className="font-bold">Días estimados: {alert.estimatedDaysRemaining} días</span>
                   <div className="flex items-center gap-1">
                     <TrendingDown className="h-3 w-3" />
-                    <span>Recommend: +{alert.reorderRecommendation} {alert.unit}</span>
+                    <span>Sugerencia: +{alert.reorderRecommendation} {alert.unit}</span>
                   </div>
                 </div>
               </AlertDescription>
@@ -82,19 +84,19 @@ export default function InventoryPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Current Stock Levels</CardTitle>
-          <CardDescription>Real-time inventory database</CardDescription>
+          <CardTitle>Niveles de Stock Actual</CardTitle>
+          <CardDescription>Base de datos de suministros en tiempo real</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-muted-foreground">
-                  <th className="text-left py-3 px-4 font-medium">Item Name</th>
-                  <th className="text-left py-3 px-4 font-medium">Current Stock</th>
-                  <th className="text-left py-3 px-4 font-medium">Avg. Daily Usage</th>
-                  <th className="text-left py-3 px-4 font-medium">Status</th>
-                  <th className="text-right py-3 px-4 font-medium">Action</th>
+                  <th className="text-left py-3 px-4 font-medium">Nombre del Ítem</th>
+                  <th className="text-left py-3 px-4 font-medium">Stock Actual</th>
+                  <th className="text-left py-3 px-4 font-medium">Consumo Diario Prom.</th>
+                  <th className="text-left py-3 px-4 font-medium">Estado</th>
+                  <th className="text-right py-3 px-4 font-medium">Acción</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,15 +109,15 @@ export default function InventoryPage() {
                         {item.currentStock} {item.unit}
                       </td>
                       <td className="py-4 px-4">
-                        {item.averageDailyConsumption} {item.unit}/day
+                        {item.averageDailyConsumption} {item.unit}/día
                       </td>
                       <td className="py-4 px-4">
                         <Badge variant={isLow ? 'destructive' : 'secondary'} className={!isLow ? 'bg-emerald-100 text-emerald-700' : ''}>
-                          {isLow ? 'Low Stock' : 'Healthy'}
+                          {isLow ? 'Stock Bajo' : 'Saludable'}
                         </Badge>
                       </td>
                       <td className="py-4 px-4 text-right">
-                        <Button variant="ghost" size="sm">Update</Button>
+                        <Button variant="ghost" size="sm">Actualizar</Button>
                       </td>
                     </tr>
                   )
@@ -127,8 +129,4 @@ export default function InventoryPage() {
       </Card>
     </div>
   )
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ')
 }

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Send, MessageSquare, Bot, User, Loader2 } from 'lucide-react'
 import { customerSupportChatbot } from '@/ai/flows/customer-support-chatbot-flow'
+import { cn } from '@/lib/utils'
 
 type Message = {
   role: 'bot' | 'user'
@@ -14,7 +15,7 @@ type Message = {
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'bot', content: "Hello! I'm SmartRest AI Support. How can I help you today?" }
+    { role: 'bot', content: "¡Hola! Soy el asistente de SmartRest AI. ¿En qué puedo ayudarte hoy?" }
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -39,7 +40,7 @@ export default function ChatPage() {
       setMessages(prev => [...prev, { role: 'bot', content: response }])
     } catch (err) {
       console.error(err)
-      setMessages(prev => [...prev, { role: 'bot', content: "Sorry, I'm having trouble connecting right now." }])
+      setMessages(prev => [...prev, { role: 'bot', content: "Lo siento, tengo problemas para conectarme en este momento." }])
     } finally {
       setLoading(false)
     }
@@ -48,8 +49,8 @@ export default function ChatPage() {
   return (
     <div className="max-w-3xl mx-auto h-[calc(100vh-160px)] flex flex-col animate-in fade-in duration-500">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Support Assistant</h1>
-        <p className="text-muted-foreground">Internal bot trained on restaurant menus, hours, and policies.</p>
+        <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Asistente de Soporte</h1>
+        <p className="text-muted-foreground">Bot interno entrenado en menús, horarios y políticas del restaurante.</p>
       </div>
 
       <Card className="flex-1 flex flex-col shadow-2xl overflow-hidden border-none">
@@ -95,7 +96,7 @@ export default function ChatPage() {
               </div>
               <div className="bg-white px-4 py-2 rounded-2xl rounded-tl-none border flex items-center gap-2">
                 <Loader2 className="h-3 w-3 animate-spin text-accent" />
-                <span className="text-xs text-muted-foreground italic">Bot is thinking...</span>
+                <span className="text-xs text-muted-foreground italic">El bot está pensando...</span>
               </div>
             </div>
           )}
@@ -107,7 +108,7 @@ export default function ChatPage() {
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           >
             <Input 
-              placeholder="Type your question here..." 
+              placeholder="Escribe tu pregunta aquí..." 
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="flex-1"
@@ -120,8 +121,4 @@ export default function ChatPage() {
       </Card>
     </div>
   )
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ')
 }

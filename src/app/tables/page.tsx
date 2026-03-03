@@ -32,22 +32,31 @@ export default function TablesPage() {
     }))
   }
 
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      free: 'Libre',
+      occupied: 'Ocupada',
+      reserved: 'Reservada'
+    }
+    return labels[status] || status
+  }
+
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Floor Management</h1>
-          <p className="text-muted-foreground">Real-time occupancy and table status.</p>
+          <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Gestión del Salón</h1>
+          <p className="text-muted-foreground">Ocupación y estado de mesas en tiempo real.</p>
         </div>
         <div className="flex gap-2">
           <Badge variant="outline" className="px-3 py-1 flex gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500" /> Free
+            <div className="h-2 w-2 rounded-full bg-emerald-500" /> Libre
           </Badge>
           <Badge variant="outline" className="px-3 py-1 flex gap-2">
-            <div className="h-2 w-2 rounded-full bg-blue-500" /> Occupied
+            <div className="h-2 w-2 rounded-full bg-blue-500" /> Ocupada
           </Badge>
           <Badge variant="outline" className="px-3 py-1 flex gap-2">
-            <div className="h-2 w-2 rounded-full bg-amber-500" /> Reserved
+            <div className="h-2 w-2 rounded-full bg-amber-500" /> Reservada
           </Badge>
         </div>
       </div>
@@ -74,22 +83,22 @@ export default function TablesPage() {
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>{table.name} Details</DialogTitle>
+                      <DialogTitle>Detalles de {table.name}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status</span>
-                        <Badge>{table.status}</Badge>
+                        <span className="text-muted-foreground">Estado</span>
+                        <Badge>{getStatusLabel(table.status)}</Badge>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Capacity</span>
-                        <span className="font-medium">{table.capacity} Persons</span>
+                        <span className="text-muted-foreground">Capacidad</span>
+                        <span className="font-medium">{table.capacity} Personas</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Last Order</span>
-                        <span className="font-medium">2:30 PM (15m ago)</span>
+                        <span className="text-muted-foreground">Último Pedido</span>
+                        <span className="font-medium">hace 15m</span>
                       </div>
-                      <Button className="w-full">Open New Order</Button>
+                      <Button className="w-full">Abrir Nuevo Pedido</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -98,7 +107,7 @@ export default function TablesPage() {
             <CardContent>
               <div className="flex items-center gap-2 mb-4">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{table.capacity} Seats</span>
+                <span className="text-sm font-medium">{table.capacity} Sillas</span>
               </div>
               <div className="flex justify-center py-4">
                 <div className={cn(
@@ -115,7 +124,7 @@ export default function TablesPage() {
                   table.status === 'free' ? "text-emerald-600" : 
                   table.status === 'occupied' ? "text-blue-600" : "text-amber-600"
                 )}>
-                  {table.status}
+                  {getStatusLabel(table.status)}
                 </span>
               </div>
             </CardContent>
@@ -125,7 +134,7 @@ export default function TablesPage() {
         <Card className="border-dashed flex items-center justify-center cursor-pointer hover:bg-secondary/50 transition-colors h-full min-h-[220px]">
           <div className="flex flex-col items-center text-muted-foreground">
             <Plus className="h-8 w-8 mb-2" />
-            <span className="text-sm font-medium">Add Table</span>
+            <span className="text-sm font-medium">Agregar Mesa</span>
           </div>
         </Card>
       </div>

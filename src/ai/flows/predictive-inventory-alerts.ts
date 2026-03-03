@@ -1,11 +1,7 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for proactively alerting kitchen managers
- * about ingredients at risk of running out based on predicted demand.
- *
- * - predictiveInventoryAlerts - A function that triggers the inventory risk assessment.
- * - PredictiveInventoryAlertsInput - The input type for the predictiveInventoryAlerts function.
- * - PredictiveInventoryAlertsOutput - The return type for the predictiveInventoryAlerts function.
+ * @fileOverview Este archivo define un flujo de Genkit para alertar proactivamente a los gerentes de cocina
+ * sobre ingredientes en riesgo de agotarse.
  */
 
 import {ai} from '@/ai/genkit';
@@ -15,14 +11,13 @@ const PredictiveInventoryAlertsInputSchema = z.object({
   inventoryItems: z
     .array(
       z.object({
-        name: z.string().describe('The name of the inventory item (ingredient).'),
-        currentStock: z.number().positive().describe('The current quantity of the item in stock.'),
-        unit: z.string().describe('The unit of measurement for the item (e.g., "kg", "units", "liters").'),
-        averageDailyConsumption: z.number().min(0).describe('The estimated average daily consumption of this item.'),
+        name: z.string().describe('Nombre del ingrediente.'),
+        currentStock: z.number().positive().describe('Cantidad actual en stock.'),
+        unit: z.string().describe('Unidad de medida (kg, unidades, litros).'),
+        averageDailyConsumption: z.number().min(0).describe('Consumo diario estimado.'),
       })
     )
-    .min(1)
-    .describe('A list of current inventory items with their stock and average daily consumption.'),
+    .min(1),
 });
 export type PredictiveInventoryAlertsInput = z.infer<typeof PredictiveInventoryAlertsInputSchema>;
 
@@ -30,15 +25,14 @@ const PredictiveInventoryAlertsOutputSchema = z.object({
   atRiskIngredients: z
     .array(
       z.object({
-        name: z.string().describe('The name of the ingredient at risk.'),
-        currentStock: z.number().describe('The current quantity of the ingredient in stock.'),
-        unit: z.string().describe('The unit of measurement.'),
-        estimatedDaysRemaining: z.number().min(0).describe('Estimated number of days until the ingredient runs out.'),
-        reorderRecommendation: z.number().positive().describe('A suggested quantity to reorder for this ingredient.'),
-        reason: z.string().describe('A brief explanation of why this ingredient is considered at risk.'),
+        name: z.string().describe('Nombre del ingrediente en riesgo.'),
+        currentStock: z.number().describe('Stock actual.'),
+        unit: z.string().describe('Unidad.'),
+        estimatedDaysRemaining: z.number().min(0).describe('Días estimados restantes.'),
+        reorderRecommendation: z.number().positive().describe('Cantidad sugerida para reordenar.'),
+        reason: z.string().describe('Explicación del riesgo en español.'),
       })
-    )
-    .describe('A list of ingredients that are at risk of running out.'),
+    ),
 });
 export type PredictiveInventoryAlertsOutput = z.infer<typeof PredictiveInventoryAlertsOutputSchema>;
 
@@ -52,18 +46,15 @@ const prompt = ai.definePrompt({
   name: 'predictiveInventoryAlertsPrompt',
   input: {schema: PredictiveInventoryAlertsInputSchema},
   output: {schema: PredictiveInventoryAlertsOutputSchema},
-  prompt: `You are an AI assistant for a restaurant kitchen manager.
-Your task is to review the current inventory and identify any ingredients that are at risk of running out soon, based on their current stock and average daily consumption. Assume a reorder lead time of 2 days for all items when making recommendations.
+  prompt: `Eres un asistente de IA para un gerente de cocina en Colombia.
+Tu tarea es revisar el inventario e identificar ingredientes en riesgo de agotarse pronto (menos de 3 días de stock). 
 
-For each item, calculate the estimated days remaining before it runs out. If an item has less than 3 days of stock remaining, consider it 'at risk'. For 'at risk' items, provide a reorder recommendation that covers at least 7 days of average consumption, plus the 2-day lead time.
-
-Here is the current inventory data:
-
+Datos de inventario:
 {{#each inventoryItems}}
-- Name: {{{name}}}, Current Stock: {{{currentStock}}} {{{unit}}}, Average Daily Consumption: {{{averageDailyConsumption}}} {{{unit}}}
+- {{{name}}}: Stock actual {{{currentStock}}} {{{unit}}}, Consumo Diario: {{{averageDailyConsumption}}} {{{unit}}}
 {{/each}}
 
-Identify all ingredients at risk and provide reorder recommendations.`,
+Identifica los ítems en riesgo y proporciona recomendaciones de pedido. Responde todo en ESPAÑOL.`,
 });
 
 const predictiveInventoryAlertsFlow = ai.defineFlow(

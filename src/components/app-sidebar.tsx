@@ -13,7 +13,8 @@ import {
   PieChart,
   ChefHat,
   MapPin,
-  ChevronDown
+  ChevronDown,
+  BarChart3
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -39,15 +40,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 const menuItems = [
-  { title: "Panel", icon: LayoutDashboard, url: "/" },
-  { title: "Mesas", icon: UtensilsCrossed, url: "/tables" },
-  { title: "Pedidos", icon: ClipboardList, url: "/orders" },
-  { title: "Cocina", icon: ChefHat, url: "/kitchen" },
+  { title: "Panel Control", icon: LayoutDashboard, url: "/" },
+  { title: "Gestión Mesas", icon: UtensilsCrossed, url: "/tables" },
+  { title: "Pedidos en Vivo", icon: ClipboardList, url: "/orders" },
+  { title: "Monitor Cocina", icon: ChefHat, url: "/kitchen" },
   { title: "Inventario", icon: Box, url: "/inventory" },
-  { title: "IA Insights", icon: TrendingUp, url: "/ai-insights" },
-  { title: "Rentabilidad", icon: TrendingUp, url: "/rentabilidad" },
+  { title: "Insights IA", icon: TrendingUp, url: "/ai-insights" },
+  { title: "Rentabilidad", icon: BarChart3, url: "/rentabilidad" },
   { title: "Reportes", icon: PieChart, url: "/reports" },
-  { title: "Chat Interno", icon: MessageSquare, url: "/chat" },
+  { title: "Chat Soporte", icon: MessageSquare, url: "/chat" },
 ]
 
 export function AppSidebar() {
@@ -84,7 +85,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Gestión</SidebarGroupLabel>
+          <SidebarGroupLabel>Menú Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -107,7 +108,9 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-border">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-accent" />
+          <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold">
+            AD
+          </div>
           <div className="flex flex-col overflow-hidden">
             <span className="text-sm font-medium truncate">Admin Usuario</span>
             <span className="text-xs text-muted-foreground truncate">Gerencia General</span>

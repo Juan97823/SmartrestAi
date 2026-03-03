@@ -1,37 +1,34 @@
 'use server';
 /**
- * @fileOverview A Genkit flow for a customer support chatbot for the SmartRest AI restaurant.
- *
- * - customerSupportChatbot - A function that handles customer queries.
- * - CustomerSupportChatbotInput - The input type for the customerSupportChatbot function.
- * - CustomerSupportChatbotOutput - The return type for the customerSupportChatbot function.
+ * @fileOverview Flujo de Genkit para un chatbot de soporte al cliente del restaurante SmartRest AI.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const CustomerSupportChatbotInputSchema = z.object({
-  query: z.string().describe('The customer\'s message or query for the chatbot.'),
+  query: z.string().describe('La consulta o mensaje del cliente para el chatbot.'),
 });
 export type CustomerSupportChatbotInput = z.infer<typeof CustomerSupportChatbotInputSchema>;
 
 const CustomerSupportChatbotOutputSchema = z
   .string()
-  .describe('The chatbot\'s response to the customer\'s query.');
+  .describe('La respuesta del chatbot a la consulta del cliente.');
 export type CustomerSupportChatbotOutput = z.infer<typeof CustomerSupportChatbotOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'customerSupportChatbotPrompt',
   input: {schema: CustomerSupportChatbotInputSchema},
   output: {schema: CustomerSupportChatbotOutputSchema},
-  prompt: `You are a friendly and helpful AI chatbot for SmartRest AI restaurant. Your purpose is to assist customers with their inquiries about the restaurant. Provide concise and accurate information based on the details below.
+  prompt: `Eres un asistente de IA amigable y servicial para el restaurante SmartRest AI en Colombia. Tu propósito es ayudar a los clientes y al personal con información sobre el restaurante. Responde siempre en ESPAÑOL de forma concisa.
 
-Restaurant Information:
-- Menu: Our menu features a variety of delicious dishes, including our popular 'SmartBurger' (a gourmet beef burger with AI-recommended toppings), 'Veggie Delight Pizza', 'Grilled Salmon with Seasonal Vegetables', and a selection of local craft beers and fine wines. Desserts include 'AI-Sweet Chocolate Lava Cake'.
-- Opening Hours: We are open Monday to Friday from 11:00 AM to 10:00 PM, and on weekends from 9:00 AM to 11:00 PM (brunch served until 2:00 PM).
-- Reservations: To make a reservation, please visit our website and fill out the reservation form, or call us directly at (555) 123-4567 during business hours. We recommend booking in advance, especially for weekend evenings.
+Información del Restaurante:
+- Menú: SmartBurger (hamburguesa gourmet), Pizza Veggie Criolla, Salmón a la Parrilla, Patatas Trufadas.
+- Horarios: Lunes a Viernes 11:00 AM - 10:00 PM. Fines de semana 9:00 AM - 11:00 PM.
+- Reservas: Se pueden hacer por la web o llamando al (555) 123-4567.
+- Precios: Los precios se manejan en Pesos Colombianos (COP). El ticket promedio es de $85.000 COP.
 
-Customer Query: {{{query}}}
+Consulta del Cliente: {{{query}}}
 `,
 });
 
