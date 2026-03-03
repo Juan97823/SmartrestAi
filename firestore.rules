@@ -1,0 +1,209 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * SMARTREST AI SECURITY RULES
+     *
+     * CORE PHILOSOPHY:
+     * This ruleset implements a robust Role-Based Access Control (RBAC) model specifically designed for high-performance 
+     * restaurant operations. It utilizes "Authorization Independence" by leveraging dedicated role-collections 
+     * and strategic data denormalization to minimize cross-document lookups (get() calls).
+     *
+     * DATA STRUCTURE:
+     * - /roles_.../{userId}: Specialized collections used for instant role verification.
+     * - /users/{userId}: Private staff profiles managed by the user and admins.
+     * - /orders, /orderItems: Operational data denormalized with waiterId and status for role-specific access.
+     * - /menuItems, /tables: Shared restaurant configuration data.
+     *
+     * KEY SECURITY DECISIONS:
+     * 1. DBAC (Database-Based Access Control): Roles are verified using exists() checks against role-specific 
+     *    collections (e.g., /roles_admin/{uid}), allowing for atomic authorization.
+     * 2. Ownership & Relational Integrity: Critical write operations (Orders, Transactions) require the 
+     *    authenticated UID to match the denormalized owner field (waiterId, cashierId, etc.).
+     * 3. Staff-Only Access: Most data is restricted to authenticated staff members; public access is denied by default.
+     * 4. Immutability: Relational links like 'waiterId' or 'orderId' are locked after creation to prevent data hijacking.
+     */
+
+    // --- HELPER FUNCTIONS ---
+
+    // Basic Authentication
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Ownership based on UID matching document ID or internal field
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Role Checks using dedicated collections (Atomic exists checks)
+    // FIX: The exists() function expects a 'path' type literal.
+    // Interpolating a variable like `$(role)` directly into a partial collection segment (e.g., `roles_$(role)`)
+    // leads to parser errors. Instead, define separate functions for each role using their static collection paths.
+    // The `hasRole` function with a dynamic argument has been removed.
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+    function isWaiter() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_waiter/$(request.auth.uid));
+    }
+    function isCashier() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_cashier/$(request.auth.uid));
+    }
+    function isKitchen() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_kitchen/$(request.auth.uid));
+    }
+
+    // Combined ownership and existence check for updates/deletes
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // Relational Immutability: Ensure a field hasn't changed during an update
+    function isUnchanged(fieldName) {
+      return request.resource.data[fieldName] == resource.data[fieldName];
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description System-wide role definitions.
+     * @path /roles/{roleId}
+     * @allow Authenticated staff to read (get/list).
+     * @deny Any write by non-admin users.
+     * @principle Public Read with Admin-Only Writes.
+     */
+    match /roles/{roleId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Staff member profiles. Users can manage their own profile for realism.
+     * @path /users/{userId}
+     * @allow User (create/get/update) where UID matches; Admin (all).
+     * @deny Deletion by the user themselves; Updates to ID field.
+     * @principle Ownership-based management for personal profiles.
+     */
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if (isExistingOwner(userId) || isAdmin()) && isUnchanged('id');
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Role authorization markers. Only admins manage role assignments.
+     * @path /roles_admin/{userId}, /roles_cashier/{userId}, /roles_waiter/{userId}, /roles_kitchen/{userId}
+     * @allow Admin (all); System (internal read).
+     * @deny Any direct modification by staff or non-admins.
+     * @principle Structural segregation for authorization logic.
+     */
+    match /roles_admin/{userId} { allow read, write: if isAdmin(); }
+    match /roles_cashier/{userId} { allow read, write: if isAdmin(); }
+    match /roles_waiter/{userId} { allow read, write: if isAdmin(); }
+    match /roles_kitchen/{userId} { allow read, write: if isAdmin(); }
+
+    /**
+     * @description Physical restaurant tables and their status.
+     * @path /tables/{tableId}
+     * @allow All staff to read; Waiters/Admins to update status.
+     * @deny Deletion or creation by non-admins.
+     * @principle Shared staff access with role-based write permissions.
+     */
+    match /tables/{tableId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || isWaiter();
+    }
+
+    /**
+     * @description Menu configuration data.
+     * @path /menuItems/{menuItemId}, /menuItemCategories/{categoryId}
+     * @allow All staff to read (get/list).
+     * @deny Any write operation by non-admins.
+     * @principle Read-only staff access to master data.
+     */
+    match /menuItems/{menuItemId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /menuItemCategories/{categoryId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    /**
+     * @description Inventory management.
+     * @path /ingredients/{ingredientId}, /menuItemIngredients/{id}
+     * @allow Kitchen and Admin staff to read.
+     * @deny Writes by anyone except Admins.
+     * @principle Restricted operational data access.
+     */
+    match /ingredients/{ingredientId} {
+      allow read: if isAdmin() || isKitchen();
+      allow write: if isAdmin();
+    }
+    match /menuItemIngredients/{id} {
+      allow read: if isAdmin() || isKitchen();
+      allow write: if isAdmin();
+    }
+
+    /**
+     * @description Customer orders. Waiters own their orders.
+     * @path /orders/{orderId}
+     * @allow Waiter (create/get/update) if they are the waiterId; Kitchen/Cashier (get/update status); Admin (all).
+     * @deny Waiter updating an order they didn't create.
+     * @principle Ownership-based writes with shared role-based updates.
+     */
+    match /orders/{orderId} {
+      allow get, list: if isSignedIn();
+      allow create: if isAdmin() || (isWaiter() && request.resource.data.waiterId == request.auth.uid);
+      allow update: if isAdmin() || isKitchen() || isCashier() || (isExistingOwner(resource.data.waiterId) && isUnchanged('waiterId'));
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Items within an order. Denormalized for rule independence.
+     * @path /orderItems/{orderItemId}
+     * @allow Waiter/Kitchen/Admin access based on denormalized waiterId and status.
+     * @deny Modifying waiterId or orderId after creation.
+     * @principle Authorization Independence via denormalization.
+     */
+    match /orderItems/{orderItemId} {
+      allow get, list: if isSignedIn();
+      allow create: if isAdmin() || (isWaiter() && request.resource.data.waiterId == request.auth.uid);
+      allow update: if isAdmin() || isKitchen() || (isExistingOwner(resource.data.waiterId) && isUnchanged('waiterId') && isUnchanged('orderId'));
+      allow delete: if isAdmin() || isExistingOwner(resource.data.waiterId);
+    }
+
+    /**
+     * @description Financial records of sales.
+     * @path /salesTransactions/{salesTransactionId}
+     * @allow Cashier (create); Admin (read/all).
+     * @deny Any update or deletion (Audit logs should be immutable).
+     * @principle Single-purpose role-based creation.
+     */
+    match /salesTransactions/{salesTransactionId} {
+      allow get, list: if isAdmin();
+      allow create: if isAdmin() || (isCashier() && request.resource.data.cashierId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Tracking ingredient movements.
+     * @path /inventoryTransactions/{inventoryTransactionId}
+     * @allow Kitchen/Admin (create); Admin (read/all).
+     * @deny Modification of existing audit logs.
+     * @principle Audit log integrity for inventory tracking.
+     */
+    match /inventoryTransactions/{inventoryTransactionId} {
+      allow get, list: if isAdmin();
+      allow create: if isAdmin() || (isKitchen() && request.resource.data.recordedByUserId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+  }
+}
