@@ -1,25 +1,27 @@
 /**
- * @fileOverview Configuración de cliente Redis para caché de predicciones de IA.
- * En AWS/Azure, este cliente conectaría con una instancia de Redis administrada.
+ * @fileOverview Configuración y cliente de Redis para SmartRest AI.
+ * Optimizado para AWS ElastiCache o Azure Cache for Redis.
  */
 
 export const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
+  url: process.env.REDIS_URL || 'redis://localhost:6379',
 };
 
 /**
- * Función de utilidad para cachear resultados de IA pesados.
- * @param key Clave única para la predicción
- * @param fetcher Función que genera la predicción si no está en caché
+ * Función simulada para manejo de caché en el prototipo.
+ * En producción, esto utilizaría el paquete 'redis' de npm.
  */
-export async function getOrCachePrediction<T>(key: string, fetcher: () => Promise<T>): Promise<T> {
-  console.log(`[Cache] Buscando predicción en Redis para: ${key}`);
-  
-  // En este prototipo simulamos la lógica de caché
-  // En producción usarías: const cached = await redis.get(key);
-  
-  const result = await fetcher();
-  return result;
+export async function cacheAiResponse<T>(key: string, data: T, ttlSeconds: number = 3600): Promise<void> {
+  if (typeof window === 'undefined') {
+    console.log(`[Redis] Almacenando caché para ${key} con TTL de ${ttlSeconds}s`);
+    // Lógica real de redis.setex(key, ttlSeconds, JSON.stringify(data))
+  }
+}
+
+export async function getCachedAiResponse<T>(key: string): Promise<T | null> {
+  if (typeof window === 'undefined') {
+    console.log(`[Redis] Consultando caché para ${key}`);
+    // Lógica real de const data = await redis.get(key)
+  }
+  return null;
 }

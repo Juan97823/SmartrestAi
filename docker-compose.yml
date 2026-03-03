@@ -8,10 +8,14 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
       - NEXT_PUBLIC_FIREBASE_API_KEY=${NEXT_PUBLIC_FIREBASE_API_KEY}
+      - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=${NEXT_PUBLIC_FIREBASE_PROJECT_ID}
     depends_on:
       - redis
+    restart: always
 
   redis:
     image: redis:alpine
@@ -19,6 +23,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    restart: always
 
 volumes:
   redis_data:
