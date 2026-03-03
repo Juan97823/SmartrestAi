@@ -23,17 +23,19 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     
     try {
+      // Esta es la función real de Firebase que dispara el correo
       await sendPasswordResetEmail(auth, email)
       toast({ 
         title: "Correo enviado", 
-        description: "Se ha enviado un enlace de recuperación a tu correo electrónico." 
+        description: "Si el correo está registrado, recibirás un enlace en unos minutos. Revisa también tu carpeta de Spam." 
       })
       setEmail('')
     } catch (err: any) {
+      console.error("Error al enviar correo:", err)
       toast({ 
         variant: "destructive", 
         title: "Error", 
-        description: "No se pudo enviar el correo. Verifique que la dirección sea correcta." 
+        description: "No se pudo procesar la solicitud. Verifica la conexión o intenta más tarde." 
       })
     } finally {
       setLoading(false)
@@ -48,26 +50,26 @@ export default function ForgotPasswordPage() {
             <UtensilsCrossed className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-primary font-headline">SmartRest AI</h1>
-          <p className="text-muted-foreground">Recuperación de Acceso</p>
+          <p className="text-muted-foreground">Recuperación de Acceso Real</p>
         </div>
 
         <Card className="border-none shadow-2xl">
           <CardHeader>
             <CardTitle className="text-2xl">¿Olvidaste tu contraseña?</CardTitle>
             <CardDescription>
-              Introduce tu correo electrónico y te enviaremos un enlace para restablecerla.
+              Firebase enviará un enlace de restablecimiento al correo que indiques si existe en la base de datos.
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleResetPassword}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico</Label>
+                <Label htmlFor="email">Correo Electrónico Registrado</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
                     id="email" 
                     type="email" 
-                    placeholder="tu@correo.com" 
+                    placeholder="ejemplo@correo.com" 
                     className="pl-10"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -79,7 +81,7 @@ export default function ForgotPasswordPage() {
             <CardFooter className="flex flex-col space-y-4">
               <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
                 {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Enviar Enlace
+                Enviar Correo de Recuperación
               </Button>
               <Link 
                 href="/login" 
@@ -91,6 +93,12 @@ export default function ForgotPasswordPage() {
             </CardFooter>
           </form>
         </Card>
+        
+        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
+          <p className="text-xs text-blue-700">
+            <strong>Nota de Arquitecto:</strong> Si no recibes el correo, verifica en tu Consola de Firebase que el proveedor "Email/Password" esté activo y que el correo ingresado esté en la lista de usuarios.
+          </p>
+        </div>
       </div>
     </div>
   )
