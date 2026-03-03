@@ -19,7 +19,7 @@ export default function RootLayout({
   const isAuthPage = authRoutes.includes(pathname);
 
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
