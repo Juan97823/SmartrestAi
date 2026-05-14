@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { UtensilsCrossed, Loader2, Lock, Mail, UserPlus } from 'lucide-react'
+import { UtensilsCrossed, Loader2, Lock, Mail, UserPlus, Info } from 'lucide-react'
 import { useAuth, useFirestore } from '@/firebase'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
@@ -93,8 +93,15 @@ export default function RegisterPage() {
                 <Input id="email" type="email" placeholder="tu@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">Crea tu Contraseña para el App</Label>
                 <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              </div>
+
+              <div className="p-3 bg-blue-50 rounded-lg flex gap-3 items-start border border-blue-100">
+                <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-blue-700 leading-tight">
+                  <strong>Aviso Importante:</strong> La contraseña que elijas aquí es exclusiva para entrar a SmartRest AI. No es necesario (ni recomendado) usar la misma contraseña de tu correo personal.
+                </p>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">

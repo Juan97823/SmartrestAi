@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { UtensilsCrossed, Loader2, Lock, Mail } from 'lucide-react'
+import { UtensilsCrossed, Loader2, Lock, Mail, Info } from 'lucide-react'
 import { useAuth } from '@/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { useToast } from '@/hooks/use-toast'
@@ -33,7 +33,7 @@ export default function LoginPage() {
       toast({ 
         variant: "destructive", 
         title: "Error de acceso", 
-        description: "Credenciales inválidas. Verifique su correo y contraseña." 
+        description: "Credenciales inválidas. Verifique su correo y contraseña del sistema." 
       })
     } finally {
       setLoading(false)
@@ -75,7 +75,7 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Contraseña</Label>
+                  <Label htmlFor="password">Contraseña del Sistema</Label>
                   <Link 
                     href="/forgot-password" 
                     className="text-xs font-bold text-primary hover:underline"
@@ -95,6 +95,13 @@ export default function LoginPage() {
                     required 
                   />
                 </div>
+              </div>
+
+              <div className="p-3 bg-blue-50 rounded-lg flex gap-3 items-start border border-blue-100">
+                <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-blue-700 leading-tight">
+                  <strong>Nota de Seguridad:</strong> Utiliza la contraseña que elegiste al registrarte en esta plataforma. Por tu seguridad, no usamos la contraseña real de tu proveedor de correo.
+                </p>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
