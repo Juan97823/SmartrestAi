@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react'
@@ -23,19 +22,18 @@ export default function ForgotPasswordPage() {
     setLoading(true)
     
     try {
-      // Esta es la función real de Firebase que dispara el correo
       await sendPasswordResetEmail(auth, email)
       toast({ 
         title: "Correo enviado", 
-        description: "Si el correo está registrado, recibirás un enlace en unos minutos. Revisa también tu carpeta de Spam." 
+        description: "Si el correo está registrado, recibirás un enlace en unos minutos." 
       })
       setEmail('')
     } catch (err: any) {
-      console.error("Error al enviar correo:", err)
+      console.error(err)
       toast({ 
         variant: "destructive", 
         title: "Error", 
-        description: "No se pudo procesar la solicitud. Verifica la conexión o intenta más tarde." 
+        description: "No se pudo procesar la solicitud. Verifica el correo e intenta más tarde." 
       })
     } finally {
       setLoading(false)
@@ -46,24 +44,23 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in duration-500">
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl mb-4 rotate-3">
+          <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl mb-4">
             <UtensilsCrossed className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-primary font-headline">SmartRest AI</h1>
-          <p className="text-muted-foreground">Recuperación de Acceso Real</p>
+          <h1 className="text-4xl font-bold tracking-tight text-primary">SmartRest AI</h1>
         </div>
 
         <Card className="border-none shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-2xl">¿Olvidaste tu contraseña?</CardTitle>
+            <CardTitle className="text-2xl">Recuperar Acceso</CardTitle>
             <CardDescription>
-              Firebase enviará un enlace de restablecimiento al correo que indiques si existe en la base de datos.
+              Enviaremos un enlace de restablecimiento a tu correo electrónico.
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleResetPassword}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Correo Electrónico Registrado</Label>
+                <Label htmlFor="email">Correo Electrónico</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input 
@@ -79,9 +76,9 @@ export default function ForgotPasswordPage() {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
+              <Button type="submit" className="w-full h-11" disabled={loading}>
                 {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Enviar Correo de Recuperación
+                Enviar Enlace
               </Button>
               <Link 
                 href="/login" 
@@ -93,12 +90,6 @@ export default function ForgotPasswordPage() {
             </CardFooter>
           </form>
         </Card>
-        
-        <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-100">
-          <p className="text-xs text-blue-700">
-            <strong>Nota de Arquitecto:</strong> Si no recibes el correo, verifica en tu Consola de Firebase que el proveedor "Email/Password" esté activo y que el correo ingresado esté en la lista de usuarios.
-          </p>
-        </div>
       </div>
     </div>
   )

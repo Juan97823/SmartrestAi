@@ -1,40 +1,27 @@
 'use server';
-/**
- * @fileOverview Flujo de Genkit para un chatbot de soporte al cliente del restaurante SmartRest AI.
- */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const CustomerSupportChatbotInputSchema = z.object({
-  query: z.string().describe('La consulta o mensaje del cliente para el chatbot.'),
+  query: z.string().describe('Consulta del cliente.'),
 });
-export type CustomerSupportChatbotInput = z.infer<typeof CustomerSupportChatbotInputSchema>;
 
 const CustomerSupportChatbotOutputSchema = z.object({
-  respuesta: z.string().describe('La respuesta detallada del chatbot en español.'),
+  respuesta: z.string().describe('Respuesta detallada en español.'),
 });
-export type CustomerSupportChatbotOutput = z.infer<typeof CustomerSupportChatbotOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'customerSupportChatbotPrompt',
   input: {schema: CustomerSupportChatbotInputSchema},
   output: {schema: CustomerSupportChatbotOutputSchema},
-  prompt: `Eres un asistente de IA amigable y servicial para el restaurante "SmartRest AI" en Colombia. Tu propósito es ayudar a los clientes y al personal con información precisa sobre el restaurante.
+  prompt: `Eres un asistente de IA para "SmartRest AI" en Colombia.
+Responde de forma concisa y amigable en español.
 
-Directrices:
-1. Responde siempre en ESPAÑOL Colombiano de forma concisa y profesional.
-2. Si te preguntan sobre el restaurante, usa la información proporcionada abajo.
-3. Si te preguntan por un "análisis", explica que como asistente de soporte puedes dar información general, pero los informes detallados están en los módulos de "Rentabilidad" o "Insights".
+Menú: SmartBurger ($35k), Pizza ($32k), Salmón ($48k).
+Horarios: L-V 11am-10pm, Fines 9am-11pm.
 
-Información del Restaurante:
-- Menú Destacado: SmartBurger ($35.000 COP), Pizza Veggie Criolla ($32.000 COP), Salmón a la Parrilla ($48.000 COP), Patatas Trufadas ($18.000 COP).
-- Horarios: Lunes a Viernes 11:00 AM - 10:00 PM. Fines de semana 9:00 AM - 11:00 PM.
-- Reservas: Se pueden gestionar en el módulo de "Gestión de Mesas" o llamando al (601) 555-1234.
-- Ubicación: Sede principal en Centro Histórico, Bogotá.
-
-Consulta del Cliente: {{{query}}}
-`,
+Consulta: {{{query}}}`,
 });
 
 const customerSupportChatbotFlow = ai.defineFlow(
@@ -50,7 +37,7 @@ const customerSupportChatbotFlow = ai.defineFlow(
 );
 
 export async function customerSupportChatbot(
-  input: CustomerSupportChatbotInput
+  input: { query: string }
 ): Promise<string> {
   const result = await customerSupportChatbotFlow(input);
   return result.respuesta;

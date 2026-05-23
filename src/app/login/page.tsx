@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react'
@@ -27,13 +26,13 @@ export default function LoginPage() {
     
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      toast({ title: "Bienvenido", description: "Acceso concedido a SmartRest AI." })
+      toast({ title: "Bienvenido", description: "Acceso concedido." })
       router.push('/')
     } catch (err: any) {
       toast({ 
         variant: "destructive", 
-        title: "Error de acceso", 
-        description: "Credenciales inválidas. Verifique su correo y contraseña del sistema." 
+        title: "Error", 
+        description: "Credenciales inválidas. Verifica tu correo y contraseña." 
       })
     } finally {
       setLoading(false)
@@ -44,17 +43,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-md space-y-8 animate-in fade-in zoom-in duration-500">
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl mb-4 rotate-3">
+          <div className="h-16 w-16 bg-primary rounded-2xl flex items-center justify-center shadow-xl mb-4">
             <UtensilsCrossed className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-primary font-headline">SmartRest AI</h1>
-          <p className="text-muted-foreground">Gestión Inteligente de Restaurantes</p>
+          <h1 className="text-4xl font-bold tracking-tight text-primary">SmartRest AI</h1>
         </div>
 
         <Card className="border-none shadow-2xl">
           <CardHeader>
             <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-            <CardDescription>Ingrese sus credenciales para acceder al sistema.</CardDescription>
+            <CardDescription>Ingresa tus credenciales del sistema.</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
@@ -65,7 +63,6 @@ export default function LoginPage() {
                   <Input 
                     id="email" 
                     type="email" 
-                    placeholder="admin@smartrest.ai" 
                     className="pl-10"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -75,11 +72,8 @@ export default function LoginPage() {
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Contraseña del Sistema</Label>
-                  <Link 
-                    href="/forgot-password" 
-                    className="text-xs font-bold text-primary hover:underline"
-                  >
+                  <Label htmlFor="password">Contraseña</Label>
+                  <Link href="/forgot-password" size="sm" className="text-xs font-bold text-primary hover:underline">
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
@@ -88,7 +82,6 @@ export default function LoginPage() {
                   <Input 
                     id="password" 
                     type="password" 
-                    placeholder="••••••••" 
                     className="pl-10"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -96,21 +89,19 @@ export default function LoginPage() {
                   />
                 </div>
               </div>
-
               <div className="p-3 bg-blue-50 rounded-lg flex gap-3 items-start border border-blue-100">
                 <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
                 <p className="text-[10px] text-blue-700 leading-tight">
-                  <strong>Nota de Seguridad:</strong> Utiliza la contraseña que elegiste al registrarte en esta plataforma. Por tu seguridad, no usamos la contraseña real de tu proveedor de correo.
+                  La contraseña es la que elegiste al registrarte en este sistema, no la de tu correo personal.
                 </p>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
-                {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                Entrar al Sistema
+              <Button type="submit" className="w-full h-11" disabled={loading}>
+                {loading ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Entrar"}
               </Button>
               <p className="text-sm text-center text-muted-foreground">
-                ¿No tienes cuenta? <Link href="/register" className="text-primary font-bold hover:underline">Regístrate gratis</Link>
+                ¿No tienes cuenta? <Link href="/register" className="text-primary font-bold hover:underline">Regístrate</Link>
               </p>
             </CardFooter>
           </form>

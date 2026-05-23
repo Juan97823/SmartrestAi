@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -41,7 +40,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 
 const menuItems = [
@@ -150,20 +148,13 @@ export function AppSidebar() {
                 {user?.email?.slice(0, 2).toUpperCase() || 'AD'}
               </div>
               <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-bold truncate text-slate-800">{user?.email || 'Admin Usuario'}</span>
-                <span className="text-[10px] text-muted-foreground truncate uppercase tracking-tighter">Gerente General</span>
+                <span className="text-sm font-bold truncate text-slate-800">{user?.email || 'Usuario'}</span>
+                <span className="text-[10px] text-muted-foreground truncate uppercase tracking-tighter">Personal Autorizado</span>
               </div>
               <ChevronDown className="ml-auto size-4 text-slate-400" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 rounded-xl shadow-2xl border-slate-200" align="end" side="top" sideOffset={12}>
-             <DropdownMenuItem className="p-3 gap-2 cursor-pointer hover:bg-slate-50">
-               <div className="size-8 rounded-lg bg-slate-100 flex items-center justify-center">
-                 <MapPin className="size-4 text-slate-500" />
-               </div>
-               <span className="text-sm">Configuración Perfil</span>
-             </DropdownMenuItem>
-             <DropdownMenuSeparator />
              <DropdownMenuItem onClick={handleLogout} className="p-3 gap-2 cursor-pointer text-destructive hover:bg-destructive/10">
                <div className="size-8 rounded-lg bg-destructive/10 flex items-center justify-center">
                  <LogOut className="size-4" />

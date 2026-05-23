@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -14,7 +13,6 @@ const BranchContext = createContext<BranchContextType | undefined>(undefined);
 export function BranchProvider({ children }: { children: ReactNode }) {
   const [selectedBranch, setSelectedBranch] = useState<Sucursal>(SUCURSALES[0]);
 
-  // Sincronizar con localStorage para persistencia básica si se desea
   useEffect(() => {
     const saved = localStorage.getItem('activeBranchId');
     if (saved) {

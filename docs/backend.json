@@ -1,39 +1,7 @@
-
 {
   "entities": {
-    "Role": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Role",
-      "type": "object",
-      "description": "Define los niveles de acceso y responsabilidades de los usuarios en SmartRest AI.",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "description": { "type": "string" }
-      },
-      "required": ["id", "name", "description"]
-    },
-    "User": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "User",
-      "type": "object",
-      "description": "Representa a un miembro del personal del restaurante.",
-      "properties": {
-        "id": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "firstName": { "type": "string" },
-        "lastName": { "type": "string" },
-        "roleId": { "type": "string" },
-        "isActive": { "type": "boolean" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["id", "email", "firstName", "lastName", "roleId", "isActive", "createdAt"]
-    },
     "Order": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Order",
       "type": "object",
-      "description": "Representa una comanda o pedido realizado en una mesa.",
       "properties": {
         "id": { "type": "string" },
         "tableId": { "type": "string" },
@@ -42,55 +10,17 @@
         "status": { "type": "string", "enum": ["preparando", "listo", "servido", "cancelado"] },
         "priority": { "type": "string", "enum": ["Baja", "Media", "Alta"] },
         "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["tableId", "branchId", "items", "status", "priority", "createdAt"]
+      }
     },
     "Ingredient": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Ingredient",
       "type": "object",
-      "description": "Representa un insumo en el inventario.",
       "properties": {
         "id": { "type": "string" },
         "branchId": { "type": "string" },
         "name": { "type": "string" },
-        "unitOfMeasure": { "type": "string" },
         "currentStock": { "type": "number" },
-        "averageDailyConsumption": { "type": "number" },
-        "minStockLevel": { "type": "number" }
-      },
-      "required": ["id", "branchId", "name", "unitOfMeasure", "currentStock", "minStockLevel"]
-    }
-  },
-  "auth": {
-    "providers": ["password", "anonymous"]
-  },
-  "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": { "$ref": "#/backend/entities/User" },
-          "description": "Perfiles de usuario del sistema."
-        }
-      },
-      {
-        "path": "/orders/{orderId}",
-        "definition": {
-          "entityName": "Order",
-          "schema": { "$ref": "#/backend/entities/Order" },
-          "description": "Gestión de comandas en tiempo real."
-        }
-      },
-      {
-        "path": "/ingredients/{ingredientId}",
-        "definition": {
-          "entityName": "Ingredient",
-          "schema": { "$ref": "#/backend/entities/Ingredient" },
-          "description": "Inventario de insumos por sucursal."
-        }
+        "unitOfMeasure": { "type": "string" }
       }
-    ]
+    }
   }
 }

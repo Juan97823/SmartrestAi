@@ -1,4 +1,3 @@
-
 "use client"
 
 import React from 'react'
@@ -17,7 +16,6 @@ export default function KitchenPage() {
   const { toast } = useToast()
   const { selectedBranch } = useBranch()
   
-  // Consulta filtrada por la sucursal seleccionada en tiempo real
   const ordersQuery = useMemoFirebase(() => {
     if (!selectedBranch?.id) return null;
     return query(
@@ -36,9 +34,9 @@ export default function KitchenPage() {
         status: 'listo',
         updatedAt: new Date().toISOString()
       })
-      toast({ title: "Pedido actualizado", description: "El pedido está listo para servir." })
+      toast({ title: "Pedido actualizado", description: "El plato está listo." })
     } catch (err) {
-      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el pedido." })
+      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar." })
     }
   }
 
@@ -46,88 +44,53 @@ export default function KitchenPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <ChefHat className="h-8 w-8 text-primary" />
-          </div>
+          <ChefHat className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">Monitor de Cocina</h1>
-            <p className="text-muted-foreground">{selectedBranch.nombre} - Tiempo Real</p>
+            <h1 className="text-3xl font-bold text-primary">Monitor de Cocina</h1>
+            <p className="text-muted-foreground">{selectedBranch.nombre}</p>
           </div>
         </div>
-        <Badge variant="outline" className="text-xs py-1">
-          Sincronizado vía Firestore
-        </Badge>
       </div>
-
-      {error && (
-        <Card className="border-destructive bg-destructive/5">
-          <CardContent className="pt-6 flex items-center gap-3 text-destructive">
-            <AlertCircle className="h-5 w-5" />
-            <p className="text-sm font-medium">Error de conexión: Verifica tus permisos o la configuración de la sucursal.</p>
-          </CardContent>
-        </Card>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
-          <div className="col-span-full flex flex-col items-center py-20 text-muted-foreground">
-            <Loader2 className="animate-spin h-8 w-8 text-primary mb-4" />
-            <p>Conectando con la cocina en tiempo real...</p>
+          <div className="col-span-full flex flex-col items-center py-20">
+            <Loader2 className="animate-spin h-8 w-8 text-primary mb-2" />
+            <p>Conectando con cocina...</p>
           </div>
         ) : !orders || orders.length === 0 ? (
-          <Card className="col-span-full border-dashed border-2 flex items-center justify-center min-h-[300px] text-muted-foreground bg-secondary/10">
-            <div className="text-center flex flex-col items-center gap-3">
-              <ClipboardList className="h-12 w-12 opacity-20" />
-              <div>
-                <p className="text-lg font-medium">No hay pedidos pendientes en {selectedBranch.nombre}</p>
-                <p className="text-sm italic">La cocina está al día.</p>
-              </div>
-            </div>
+          <Card className="col-span-full border-dashed flex flex-col items-center justify-center p-20 text-muted-foreground">
+            <ClipboardList className="h-12 w-12 mb-2 opacity-20" />
+            <p>No hay pedidos pendientes en esta sucursal.</p>
           </Card>
         ) : (
           orders.map((order) => (
-            <Card key={order.id} className="border-l-4 border-l-primary shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow">
-              <CardHeader className="bg-secondary/30 flex flex-row items-center justify-between pb-2">
-                <div className="flex flex-col">
-                  <CardTitle className="text-xl">Pedido #{order.id?.slice(-4)}</CardTitle>
-                  <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Mesa {order.tableId}</span>
-                </div>
-                <Badge 
-                  className={cn(
-                    order.priority === 'Alta' ? "bg-destructive text-destructive-foreground" : 
-                    order.priority === 'Media' ? "bg-amber-500 text-white" : "bg-primary text-primary-foreground"
-                  )}
-                >
+            <Card key={order.id} className="border-l-4 border-l-primary shadow-md">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg">Mesa {order.tableId}</CardTitle>
+                <Badge variant={order.priority === 'Alta' ? 'destructive' : 'default'}>
                   {order.priority}
                 </Badge>
               </CardHeader>
-              <CardContent className="flex-1 pt-4">
+              <CardContent>
                 <div className="flex items-center gap-2 mb-4 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
-                  <span>Estado: <span className="capitalize font-bold text-primary">{order.status}</span></span>
+                  <span>{order.status}</span>
                 </div>
-                <ul className="space-y-3">
+                <ul className="space-y-2">
                   {order.items.map((item: string, i: number) => (
-                    <li key={i} className="flex items-center gap-2 text-sm font-medium p-2 bg-secondary/20 rounded">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
-                      {item}
-                    </li>
+                    <li key={i} className="text-sm p-2 bg-secondary/50 rounded">{item}</li>
                   ))}
                 </ul>
-              </CardContent>
-              <div className="p-4 bg-white border-t grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" className="gap-1 border-destructive text-destructive hover:bg-destructive hover:text-white transition-colors">
-                  <AlertCircle className="h-3 w-3" /> Retraso
-                </Button>
                 <Button 
-                  size="sm" 
-                  className="gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="w-full mt-4" 
                   onClick={() => handleComplete(order.id!)}
                   disabled={order.status === 'listo'}
                 >
-                  <CheckCircle2 className="h-3 w-3" /> {order.status === 'listo' ? 'Listo' : 'Completar'}
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  {order.status === 'listo' ? 'Listo' : 'Completar'}
                 </Button>
-              </div>
+              </CardContent>
             </Card>
           ))
         )}
