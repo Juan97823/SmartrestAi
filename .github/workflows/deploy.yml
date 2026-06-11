@@ -22,8 +22,6 @@ jobs:
 
       - name: Construir Proyecto
         run: npm run build
-        env:
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
 
       # Ejemplo de construcción de imagen Docker
       - name: Set up Docker Buildx
