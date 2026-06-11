@@ -16,7 +16,7 @@ import {
 } from 'lucide-react'
 import { aiDishRecommendation } from '@/ai/flows/ai-dish-recommendation'
 import { useFirestore } from '@/firebase'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp } from '@/firebase/firestore'
 import { POPULAR_DISHES } from '@/lib/mock-data'
 import { useToast } from '@/hooks/use-toast'
 import { useBranch } from '@/components/branch-context'

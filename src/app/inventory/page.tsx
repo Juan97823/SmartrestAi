@@ -22,7 +22,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useBranch } from '@/components/branch-context'
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase'
-import { collection, query, where, addDoc, serverTimestamp, updateDoc, doc, writeBatch, getDocs } from 'firebase/firestore'
+import { collection, query, where, addDoc, serverTimestamp, updateDoc, doc, writeBatch, getDocs } from '@/firebase/firestore'
 import { useToast } from '@/hooks/use-toast'
 
 export default function InventoryPage() {

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { UtensilsCrossed, Loader2, Lock, Mail, Info } from 'lucide-react'
 import { useAuth } from '@/firebase'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import { signInWithEmailAndPassword } from '@/firebase/auth'
 import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
 
@@ -73,7 +73,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Link href="/forgot-password" size="sm" className="text-xs font-bold text-primary hover:underline">
+                  <Link href="/forgot-password" className="text-xs font-bold text-primary hover:underline">
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>

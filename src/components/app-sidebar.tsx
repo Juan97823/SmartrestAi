@@ -20,7 +20,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { SUCURSALES } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import { useAuth, useUser } from "@/firebase"
-import { signOut } from "firebase/auth"
+import { signOut } from '@/firebase/auth'
 import { useBranch } from "@/components/branch-context"
 
 import {

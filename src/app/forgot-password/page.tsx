@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { UtensilsCrossed, Loader2, Mail, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/firebase'
-import { sendPasswordResetEmail } from 'firebase/auth'
+import { sendPasswordResetEmail } from '@/firebase/auth'
 import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
 

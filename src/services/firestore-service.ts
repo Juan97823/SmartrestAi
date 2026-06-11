@@ -1,18 +1,17 @@
 /**
  * @fileOverview Servicio para operaciones en tiempo real con Firestore.
  */
-import { 
-  collection, 
-  addDoc, 
-  onSnapshot, 
-  query, 
-  orderBy, 
-  updateDoc, 
+import {
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  updateDoc,
   doc,
-  Timestamp,
-  where
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+  where,
+  getDocs,
+} from '@/firebase/firestore';
+import { useFirestore } from '@/firebase';
 
 export interface Order {
   id?: string;
@@ -26,31 +25,45 @@ export interface Order {
 
 // Guardar un nuevo pedido
 export const createOrder = async (order: Omit<Order, 'id' | 'createdAt'>) => {
+  const db = useFirestore();
   return await addDoc(collection(db, 'orders'), {
     ...order,
-    createdAt: Timestamp.now()
+    createdAt: new Date().toISOString(),
   });
 };
 
 // Escuchar pedidos en tiempo real por sucursal
 export const listenOrders = (branchId: string, callback: (orders: Order[]) => void) => {
+  const db = useFirestore();
   const q = query(
-    collection(db, 'orders'), 
+    collection(db, 'orders'),
     where('branchId', '==', branchId),
     orderBy('createdAt', 'desc')
   );
-  
-  return onSnapshot(q, (snapshot) => {
-    const orders = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+
+  let lastItems: string | null = null;
+  const refresh = async () => {
+    const snapshot = await getDocs(q);
+    const orders = snapshot.map((docItem) => ({
+      id: docItem.id,
+      ...docItem,
     })) as Order[];
-    callback(orders);
-  });
+    const current = JSON.stringify(orders);
+    if (current !== lastItems) {
+      lastItems = current;
+      callback(orders);
+    }
+  };
+
+  const intervalId = setInterval(refresh, 1000);
+  refresh();
+
+  return () => clearInterval(intervalId);
 };
 
 // Actualizar estado de pedido
 export const updateOrderStatus = async (orderId: string, status: Order['status']) => {
+  const db = useFirestore();
   const orderRef = doc(db, 'orders', orderId);
   return await updateDoc(orderRef, { status });
 };
