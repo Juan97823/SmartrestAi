@@ -21,7 +21,7 @@ import {
 } from '@/ai/flows/predictive-inventory-alerts'
 import { cn } from '@/lib/utils'
 import { useBranch } from '@/components/branch-context'
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase'
+import { useFirestore, useCollection, useMemoLocal } from '@/firebase'
 import { collection, query, where, addDoc, serverTimestamp, updateDoc, doc, writeBatch, getDocs } from '@/firebase/firestore'
 import { useToast } from '@/hooks/use-toast'
 
@@ -34,7 +34,7 @@ export default function InventoryPage() {
   const [aiAlerts, setAiAlerts] = useState<PredictiveInventoryAlertsOutput | null>(null)
 
   // Consulta real de ingredientes filtrada por sucursal
-  const inventoryQuery = useMemoFirebase(() => {
+  const inventoryQuery = useMemoLocal(() => {
     return query(
       collection(db, 'ingredients'),
       where('branchId', '==', selectedBranch.id)

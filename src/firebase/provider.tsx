@@ -4,9 +4,9 @@ import React, { DependencyList, createContext, useContext, ReactNode, useMemo, u
 import { Auth, User, onAuthStateChanged } from '@/firebase/auth';
 import { Firestore } from '@/firebase/firestore';
 
-interface FirebaseProviderProps {
+interface LocalProviderProps {
   children: ReactNode;
-  firebaseApp: object;
+  app: object;
   firestore: Firestore;
   auth: Auth;
 }
@@ -17,9 +17,9 @@ interface UserAuthState {
   userError: Error | null;
 }
 
-export interface FirebaseContextState {
+export interface LocalContextState {
   areServicesAvailable: boolean;
-  firebaseApp: object | null;
+  app: object | null;
   firestore: Firestore | null;
   auth: Auth | null;
   user: User | null;
@@ -27,8 +27,8 @@ export interface FirebaseContextState {
   userError: Error | null;
 }
 
-export interface FirebaseServicesAndUser {
-  firebaseApp: object;
+export interface LocalServicesAndUser {
+  app: object;
   firestore: Firestore;
   auth: Auth;
   user: User | null;
@@ -42,11 +42,11 @@ export interface UserHookResult {
   userError: Error | null;
 }
 
-export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
+export const LocalContext = createContext<LocalContextState | undefined>(undefined);
 
-export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
+export const LocalProvider: React.FC<LocalProviderProps> = ({
   children,
-  firebaseApp,
+  app,
   firestore,
   auth,
 }) => {
@@ -66,11 +66,11 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
     const unsubscribe = onAuthStateChanged(
       auth,
-      (firebaseUser) => {
-        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
+      (user) => {
+        setUserAuthState({ user, isUserLoading: false, userError: null });
       },
       (error) => {
-        console.error('FirebaseProvider: onAuthStateChanged error:', error);
+        console.error('LocalProvider: onAuthStateChanged error:', error);
         setUserAuthState({ user: null, isUserLoading: false, userError: error });
       }
     );
@@ -78,35 +78,35 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     return () => unsubscribe();
   }, [auth]);
 
-  const contextValue = useMemo((): FirebaseContextState => {
-    const servicesAvailable = !!(firebaseApp && firestore && auth);
+  const contextValue = useMemo((): LocalContextState => {
+    const servicesAvailable = !!(app && firestore && auth);
     return {
       areServicesAvailable: servicesAvailable,
-      firebaseApp: servicesAvailable ? firebaseApp : null,
+      app: servicesAvailable ? app : null,
       firestore: servicesAvailable ? firestore : null,
       auth: servicesAvailable ? auth : null,
       user: userAuthState.user,
       isUserLoading: userAuthState.isUserLoading,
       userError: userAuthState.userError,
     };
-  }, [firebaseApp, firestore, auth, userAuthState]);
+  }, [app, firestore, auth, userAuthState]);
 
-  return <FirebaseContext.Provider value={contextValue}>{children}</FirebaseContext.Provider>;
+  return <LocalContext.Provider value={contextValue}>{children}</LocalContext.Provider>;
 };
 
-export const useFirebase = (): FirebaseServicesAndUser => {
-  const context = useContext(FirebaseContext);
+export const useLocalServices = (): LocalServicesAndUser => {
+  const context = useContext(LocalContext);
 
   if (context === undefined) {
-    throw new Error('useFirebase must be used within a FirebaseProvider.');
+    throw new Error('useLocalServices must be used within a LocalProvider.');
   }
 
-  if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
-    throw new Error('Firebase core services not available. Check FirebaseProvider props.');
+  if (!context.areServicesAvailable || !context.app || !context.firestore || !context.auth) {
+    throw new Error('Local core services not available. Check LocalProvider props.');
   }
 
   return {
-    firebaseApp: context.firebaseApp,
+    app: context.app,
     firestore: context.firestore,
     auth: context.auth,
     user: context.user,
@@ -116,20 +116,20 @@ export const useFirebase = (): FirebaseServicesAndUser => {
 };
 
 export const useAuth = (): Auth => {
-  const { auth } = useFirebase();
+  const { auth } = useLocalServices();
   return auth;
 };
 
 export const useFirestore = (): Firestore => {
-  const { firestore } = useFirebase();
+  const { firestore } = useLocalServices();
   return firestore;
 };
 
-export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T {
+export function useMemoLocal<T>(factory: () => T, deps: DependencyList): T {
   return useMemo(factory, deps);
 }
 
 export const useUser = (): UserHookResult => {
-  const { user, isUserLoading, userError } = useFirebase();
+  const { user, isUserLoading, userError } = useLocalServices();
   return { user, isUserLoading, userError };
 };

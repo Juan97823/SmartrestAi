@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, Clock, AlertCircle, ChefHat, Loader2, ClipboardList } from 'lucide-react'
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase'
+import { useFirestore, useCollection, useMemoLocal } from '@/firebase'
 import { collection, query, where, orderBy, updateDoc, doc } from '@/firebase/firestore'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/hooks/use-toast'
@@ -16,7 +16,7 @@ export default function KitchenPage() {
   const { toast } = useToast()
   const { selectedBranch } = useBranch()
   
-  const ordersQuery = useMemoFirebase(() => {
+  const ordersQuery = useMemoLocal(() => {
     if (!selectedBranch?.id) return null;
     return query(
       collection(db, 'orders'),

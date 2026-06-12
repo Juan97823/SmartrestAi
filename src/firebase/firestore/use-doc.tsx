@@ -34,7 +34,7 @@ export function useDoc<T = any>(
     }
 
     if (!memoizedDocRef.__memo) {
-      setError(new Error('The document reference must be memoized using useMemoFirebase.'));
+      setError(new Error('The document reference must be memoized using useMemoLocal.'));
       setData(null);
       setIsLoading(false);
       return;

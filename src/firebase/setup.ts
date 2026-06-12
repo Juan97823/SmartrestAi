@@ -3,15 +3,15 @@
 import { getAuth, Auth } from '@/firebase/auth';
 import { initializeFirestore, Firestore } from '@/firebase/firestore';
 
-export interface FirebaseServices {
-  firebaseApp: object;
+export interface LocalServices {
+  app: object;
   auth: Auth;
   firestore: Firestore;
 }
 
-export function initializeFirebase(): FirebaseServices {
+export function initializeLocalServices(): LocalServices {
   return {
-    firebaseApp: {},
+    app: {},
     auth: getAuth(),
     firestore: initializeFirestore(),
   };

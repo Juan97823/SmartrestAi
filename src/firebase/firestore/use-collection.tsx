@@ -30,7 +30,7 @@ export function useCollection<T = any>(
     }
 
     if (!memoizedTargetRefOrQuery.__memo) {
-      setError(new Error('The query must be memoized using useMemoFirebase.'));
+      setError(new Error('The query must be memoized using useMemoLocal.'));
       setData(null);
       setIsLoading(false);
       return;

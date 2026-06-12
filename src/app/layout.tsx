@@ -6,7 +6,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import AuthWrapper from '@/components/auth-wrapper';
 import { usePathname } from 'next/navigation';
-import { FirebaseClientProvider } from '@/firebase';
+import { LocalClientProvider } from '@/firebase';
 import { BranchProvider } from '@/components/branch-context';
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
-        <FirebaseClientProvider>
+        <LocalClientProvider>
           <BranchProvider>
             <AuthWrapper>
               {isAuthPage ? (
@@ -46,7 +46,7 @@ export default function RootLayout({
             </AuthWrapper>
             <Toaster />
           </BranchProvider>
-        </FirebaseClientProvider>
+        </LocalClientProvider>
       </body>
     </html>
   );
